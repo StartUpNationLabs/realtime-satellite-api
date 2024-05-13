@@ -41,8 +41,8 @@ func sendRequest(req http.Request, client http.Client) (resp *http.Response) {
 }
 
 func loadEnv() (username, password string) {
-	var err error
-	err = godotenv.Load()
+	err := godotenv.Load()
+
 	if err != nil {
 		fmt.Println("Error loading .env file:", err)
 		os.Exit(1)
@@ -103,6 +103,8 @@ func main() {
 
 	// Make the request
 	resp = sendRequest(*req, *client)
+
+	defer resp.Body.Close()
 
 	// Print the response status code
 	fmt.Println("Response Status:", resp.Status)
