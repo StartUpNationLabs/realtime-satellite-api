@@ -19,7 +19,7 @@ paths:
             items:
               type: string
               format: date-time
-            example: ["2021-01-01T12:00:00Z", "2021-01-01T12:30:00Z"]
+            example: [ "2021-01-01T12:00:00Z", "2021-01-01T12:30:00Z" ]
 
       responses:
         200:
@@ -30,6 +30,23 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Satellite'
+              example:
+                - id: "1"
+                  positions:
+                    - lat: 51.5074
+                      lon: 0.1278
+                      altitude: 100
+                    - lat: 51.5074
+                      lon: 0.1278
+                      altitude: 100
+                - id: "2"
+                  positions:
+                    - lat: 51.5074
+                      lon: 0.1278
+                      altitude: 100
+                    - lat: 51.5074
+                      lon: 0.1278
+                      altitude: 100
         400:
           description: Bad request, please provide a valid times parameter
           content:
@@ -79,7 +96,6 @@ components:
           items:
             $ref: '#/components/schemas/SatellitePosition'
           description: Array of positions of the satellite at the given times
-
 
     SatelliteDetail:
       type: object

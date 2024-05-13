@@ -6,18 +6,37 @@ import (
 	"net/url"
 )
 
-func Login(username, password string) (spacecraftCookie, chocolatechip string) {
+import (
+	log "github.com/sirupsen/logrus"
+)
+
+// Credentials  is a struct that holds the username and password of the user
+type Credentials struct {
+	Identity string
+	Password string
+}
+type LoggedInCredentials struct {
+	identity         string
+	password         string
+	spacecraftCookie string
+	chocolatechip    string
+}
+
+func Login(credentials Credentials) (LoggedInCredentials, error) {
 	var req *http.Request
 	var resp *http.Response
 	// Create all the mandatory request to login and load the data
 	client := &http.Client{}
 
-	req = createRequest("GET", "https://www.space-track.org/auth/login", nil)
+	req = createRequest("GET", SPACE_TRACK_LOGIN_URL, nil)
 
 	resp = sendRequest(*req, *client)
 
 	// Close the body at the end of the method
 	defer resp.Body.Close()
+
+	spacecraftCookie := ""
+	chocolatechip := ""
 
 	for _, cookie := range resp.Cookies() {
 		if cookie.Name == "spacetrack_csrf_cookie" {
@@ -28,21 +47,21 @@ func Login(username, password string) (spacecraftCookie, chocolatechip string) {
 	}
 
 	if chocolatechip == "" || spacecraftCookie == "" {
-		fmt.Println("The cookie aren't fectched successfully :/")
-		return
+		return LoggedInCredentials{}, fmt.Errorf("the cookie aren't fectched successfully :/")
 	}
 
-	fmt.Println("cookie_spacecraft_csr :", spacecraftCookie, ", chocolatechip :", chocolatechip)
+	// Print the response status code
+	log.Info("Response Status:", resp.Status)
 
 	// Create form data
 	formData := url.Values{}
-	formData.Set("identity", username)
-	formData.Set("password", password)
+	formData.Set("identity", credentials.Identity)
+	formData.Set("password", credentials.Password)
 	formData.Set("spacetrack_csrf_token", spacecraftCookie)
 	formData.Set("btnLogin", "LOGIN")
 
 	// Create a new request
-	req = createRequest("POST", "https://www.space-track.org/auth/login", formData)
+	req = createRequest("POST", SPACE_TRACK_LOGIN_URL, formData)
 
 	// Set the content type header
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
@@ -54,10 +73,10 @@ func Login(username, password string) (spacecraftCookie, chocolatechip string) {
 	defer resp.Body.Close()
 
 	// Print the response status code
-	fmt.Println("Response Status:", resp.Status)
-	return spacecraftCookie, chocolatechip
+	log.Info("Response Status:", resp.Status)
+	return LoggedInCredentials{credentials.Identity, credentials.Password, spacecraftCookie, chocolatechip}, nil
 }
 
-func FetchData(tleFilepath, spacecraftCookie, chocolatechip string) {
-	fmt.Println("Not implemented yet !")
+func FetchData(tleFilepath string, loggedInCredentials LoggedInCredentials) {
+	log.Fatalf("Not implemented yet")
 }
