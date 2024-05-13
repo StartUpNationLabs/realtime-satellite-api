@@ -4,33 +4,13 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"os"
-
-	"github.com/joho/godotenv"
 )
 
-func loadEnv() (username, password string) {
-	err := godotenv.Load()
-
-	if err != nil {
-		fmt.Println("Error loading .env file:", err)
-		os.Exit(1)
-	}
-
-	//Load .env file variables
-	username = os.Getenv("identity")
-	password = os.Getenv("password")
-
-	return username, password
-}
-
-func Login() {
+func Login(username, password string) {
 	var req *http.Request
 	var resp *http.Response
-	var username, password string
 	var spacecraftCookie, chocolatechip string
 
-	username, password = loadEnv()
 	// Create all the mandatory request to login and load the data
 	client := &http.Client{}
 
