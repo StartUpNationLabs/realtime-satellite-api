@@ -25,5 +25,6 @@ func loadEnv() (username, password string) {
 
 func main() {
 	username, password := loadEnv()
-	spacetrack.Login(username, password)
+	spacecraftCookie, chocolatechip := spacetrack.Login(username, password)
+	spacetrack.FetchData("./tle.json", spacecraftCookie, chocolatechip)
 }

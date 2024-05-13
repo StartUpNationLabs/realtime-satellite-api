@@ -6,11 +6,9 @@ import (
 	"net/url"
 )
 
-func Login(username, password string) {
+func Login(username, password string) (spacecraftCookie, chocolatechip string) {
 	var req *http.Request
 	var resp *http.Response
-	var spacecraftCookie, chocolatechip string
-
 	// Create all the mandatory request to login and load the data
 	client := &http.Client{}
 
@@ -57,5 +55,9 @@ func Login(username, password string) {
 
 	// Print the response status code
 	fmt.Println("Response Status:", resp.Status)
+	return spacecraftCookie, chocolatechip
+}
 
+func FetchData(tleFilepath, spacecraftCookie, chocolatechip string) {
+	fmt.Println("Not implemented yet !")
 }
