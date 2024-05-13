@@ -10,38 +10,64 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func main() {
-	var req *http.Request
-	var resp *http.Response
+func createRequest(requestType, uri string, formData url.Values) (req *http.Request) {
 	var err error
-	var username, password string
-	var spacecraftCookie, chocolatechip string
 
+	if formData != nil {
+		req, err = http.NewRequest(requestType, uri, strings.NewReader(formData.Encode()))
+	} else {
+		req, err = http.NewRequest(requestType, uri, nil)
+	}
+
+	if err != nil {
+		fmt.Println("Error with the creation of the request:", err)
+		os.Exit(1)
+	}
+
+	return req
+}
+
+func sendRequest(req http.Request, client http.Client) (resp *http.Response) {
+	var err error
+
+	resp, err = client.Do(&req)
+
+	if err != nil {
+		fmt.Println("Error making request:", err)
+		os.Exit(1)
+	}
+
+	return resp
+}
+
+func loadEnv() (username, password string) {
+	var err error
 	err = godotenv.Load()
 	if err != nil {
 		fmt.Println("Error loading .env file:", err)
-		return
+		os.Exit(1)
 	}
 
 	//Load .env file variables
 	username = os.Getenv("identity")
 	password = os.Getenv("password")
 
+	return username, password
+}
+
+func main() {
+	var req *http.Request
+	var resp *http.Response
+	var username, password string
+	var spacecraftCookie, chocolatechip string
+
+	username, password = loadEnv()
 	// Create all the mandatory request to login and load the data
 	client := &http.Client{}
-	req, err = http.NewRequest("GET", "https://www.space-track.org/auth/login", nil)
 
-	if err != nil {
-		fmt.Println("Error with the creation of the authentification request:", err)
-		return
-	}
+	req = createRequest("GET", "https://www.space-track.org/auth/login", nil)
 
-	resp, err = client.Do(req)
-
-	if err != nil {
-		fmt.Println("Error with the first authentification request:", err)
-		return
-	}
+	resp = sendRequest(*req, *client)
 
 	// Close the body at the end of the method
 	defer resp.Body.Close()
@@ -69,25 +95,14 @@ func main() {
 	formData.Set("btnLogin", "LOGIN")
 
 	// Create a new request
-	req, err = http.NewRequest("POST", "https://www.space-track.org/auth/login", strings.NewReader(formData.Encode()))
-
-	if err != nil {
-		fmt.Println("Error creating request:", err)
-		return
-	}
+	req = createRequest("POST", "https://www.space-track.org/auth/login", formData)
 
 	// Set the content type header
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.Header.Set("Cookie", "spacetrack_csrf_cookie="+spacecraftCookie+";"+"chocolatechip="+chocolatechip)
 
 	// Make the request
-	resp, err = client.Do(req)
-
-	if err != nil {
-		fmt.Println("Error making request:", err)
-		return
-	}
-	defer resp.Body.Close()
+	resp = sendRequest(*req, *client)
 
 	// Print the response status code
 	fmt.Println("Response Status:", resp.Status)
