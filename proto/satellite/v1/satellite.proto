@@ -1,0 +1,45 @@
+syntax = "proto3";
+package satellite.v1;
+option  go_package = "github.com/Tsukoyachi/react-flight-tracker-satellite/gen/go/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+
+message Satellite {
+  string id = 1;
+  double lat = 2;
+  double lon = 3;
+  double altitude = 4;
+}
+
+
+
+message SatelliteDetail {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  double velocity = 4;
+  google.protobuf.Timestamp launchDate = 5;
+}
+
+message GetSatellitePositionsRequest {
+  google.protobuf.Timestamp time = 1;
+}
+
+message GetSatellitePositionsResponse {
+  repeated Satellite satellites = 1;
+}
+
+service SatelliteService {
+  rpc GetSatellitePositions(GetSatellitePositionsRequest) returns (GetSatellitePositionsResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/positions"
+    };
+  }
+
+  rpc GetSatelliteDetail(Satellite) returns (SatelliteDetail){
+    option(google.api.http) = {
+      get : "/v1/satellite/detail/{id}"
+    };
+  }
+}

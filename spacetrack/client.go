@@ -2,6 +2,7 @@ package spacetrack
 
 import (
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 )
@@ -33,7 +34,12 @@ func Login(credentials Credentials) (LoggedInCredentials, error) {
 	resp = sendRequest(*req, *client)
 
 	// Close the body at the end of the method
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Error("Error closing the body:", err)
+		}
+	}(resp.Body)
 
 	spacecraftCookie := ""
 	chocolatechip := ""
@@ -70,7 +76,12 @@ func Login(credentials Credentials) (LoggedInCredentials, error) {
 	// Make the request
 	resp = sendRequest(*req, *client)
 
-	defer resp.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			log.Error("Error closing the body:", err)
+		}
+	}(resp.Body)
 
 	// Print the response status code
 	log.Info("Response Status:", resp.Status)
