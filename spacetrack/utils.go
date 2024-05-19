@@ -1,39 +1,61 @@
 package spacetrack
 
 import (
-	"fmt"
-	"net/http"
-	"net/url"
+	"encoding/json"
+	log "github.com/sirupsen/logrus"
+	"io/ioutil"
 	"os"
-	"strings"
 )
 
-func createRequest(requestType, uri string, formData url.Values) (req *http.Request) {
-	var err error
-
-	if formData != nil {
-		req, err = http.NewRequest(requestType, uri, strings.NewReader(formData.Encode()))
-	} else {
-		req, err = http.NewRequest(requestType, uri, nil)
-	}
-
+func readDataFromFile(filepath string) ([]TLE, error) {
+	file, err := os.Open(filepath)
 	if err != nil {
-		fmt.Println("Error with the creation of the request:", err)
-		os.Exit(1)
+		return nil, err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Error(err)
+
+		}
+	}(file)
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
 	}
 
-	return req
+	var data []TLE
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
-func sendRequest(req http.Request, client http.Client) (resp *http.Response) {
-	var err error
-
-	resp, err = client.Do(&req)
-
+// saveDataToFile saves data to a file
+func saveDataToFile(filepath string, data []TLE) error {
+	file, err := os.Create(filepath)
 	if err != nil {
-		fmt.Println("Error making request:", err)
-		os.Exit(1)
+		return err
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			log.Error(err)
+		}
+	}(file)
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
 	}
 
-	return resp
+	_, err = file.Write(bytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

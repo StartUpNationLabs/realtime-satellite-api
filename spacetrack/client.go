@@ -3,7 +3,6 @@ package spacetrack
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"os"
 )
@@ -92,45 +91,4 @@ func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials Log
 	}
 
 	return data, nil
-}
-func readDataFromFile(filepath string) ([]TLE, error) {
-	file, err := os.Open(filepath)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	bytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, err
-	}
-
-	var data []TLE
-	err = json.Unmarshal(bytes, &data)
-	if err != nil {
-		return nil, err
-	}
-
-	return data, nil
-}
-
-// saveDataToFile saves data to a file
-func saveDataToFile(filepath string, data []TLE) error {
-	file, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	_, err = file.Write(bytes)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

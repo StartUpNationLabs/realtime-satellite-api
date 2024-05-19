@@ -38,11 +38,11 @@ func NewSatelliteService() *SatelliteService {
 	calculatedMap := make(map[string]spacetrack.TLE)
 	for _, tle := range data {
 		if tle.NORAD_CAT_ID == "" {
-			log.Fatalf("OBJECT_ID is empty in %v", tle)
+			log.Fatalf("NORAD_CAT_ID is empty in %v", tle)
 		}
 		// check if the object id is already in the map
 		if _, ok := calculatedMap[tle.NORAD_CAT_ID]; ok {
-			log.Fatalf("OBJECT_ID %v is already in the map", tle.OBJECT_ID)
+			log.Fatalf("NORAD_CAT_ID %v is already in the map", tle.OBJECT_ID)
 		}
 		calculatedMap[tle.NORAD_CAT_ID] = tle
 
