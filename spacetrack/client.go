@@ -1,50 +1,27 @@
 package spacetrack
 
 import (
+	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
+	"io/ioutil"
 	"net/url"
+	"os"
 )
+import "github.com/go-resty/resty/v2"
 
 import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Credentials  is a struct that holds the username and password of the user
-type Credentials struct {
-	Identity string
-	Password string
-}
-type LoggedInCredentials struct {
-	identity         string
-	password         string
-	spacecraftCookie string
-	chocolatechip    string
-}
+func Login(client *resty.Client, credentials Credentials) (LoggedInCredentials, error) {
 
-func Login(credentials Credentials) (LoggedInCredentials, error) {
-	var req *http.Request
-	var resp *http.Response
-	// Create all the mandatory request to login and load the data
-	client := &http.Client{}
-
-	req = createRequest("GET", SPACE_TRACK_LOGIN_URL, nil)
-
-	resp = sendRequest(*req, *client)
-
-	// Close the body at the end of the method
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Error("Error closing the body:", err)
-		}
-	}(resp.Body)
+	loginPage, _ := client.R().
+		Get(SPACE_TRACK_LOGIN_URL)
 
 	spacecraftCookie := ""
 	chocolatechip := ""
 
-	for _, cookie := range resp.Cookies() {
+	for _, cookie := range loginPage.Cookies() {
 		if cookie.Name == "spacetrack_csrf_cookie" {
 			spacecraftCookie = cookie.Value
 		} else if cookie.Name == "chocolatechip" {
@@ -56,9 +33,6 @@ func Login(credentials Credentials) (LoggedInCredentials, error) {
 		return LoggedInCredentials{}, fmt.Errorf("the cookie aren't fectched successfully :/")
 	}
 
-	// Print the response status code
-	log.Info("Response Status:", resp.Status)
-
 	// Create form data
 	formData := url.Values{}
 	formData.Set("identity", credentials.Identity)
@@ -67,27 +41,90 @@ func Login(credentials Credentials) (LoggedInCredentials, error) {
 	formData.Set("btnLogin", "LOGIN")
 
 	// Create a new request
-	req = createRequest("POST", SPACE_TRACK_LOGIN_URL, formData)
+	req := client.R().
+		SetFormDataFromValues(formData).
+		SetHeader("Content-Type", "application/x-www-form-urlencoded").
+		SetHeader("Cookie", "spacetrack_csrf_cookie="+spacecraftCookie+";"+"chocolatechip="+chocolatechip)
 
-	// Set the content type header
-	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-	req.Header.Set("Cookie", "spacetrack_csrf_cookie="+spacecraftCookie+";"+"chocolatechip="+chocolatechip)
-
-	// Make the request
-	resp = sendRequest(*req, *client)
-
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			log.Error("Error closing the body:", err)
-		}
-	}(resp.Body)
+	resp, _ := req.Post(SPACE_TRACK_LOGIN_URL)
 
 	// Print the response status code
 	log.Info("Response Status:", resp.Status)
 	return LoggedInCredentials{credentials.Identity, credentials.Password, spacecraftCookie, chocolatechip}, nil
 }
 
-func FetchData(tleFilepath string, loggedInCredentials LoggedInCredentials) {
-	log.Fatalf("Not implemented yet")
+func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials LoggedInCredentials) ([]TLE, error) {
+	// if file exists, read from file
+	if _, err := os.Stat(tleFilepath); err == nil {
+		data, err := readDataFromFile(tleFilepath)
+		if err != nil {
+			return nil, err
+		}
+		return data, nil
+
+	}
+
+	req, err := client.R().
+		SetHeader("Cookie", "spacetrack_csrf_cookie="+loggedInCredentials.spacecraftCookie+";"+"chocolatechip="+loggedInCredentials.chocolatechip).
+		Get(SPACE_TRACK_API)
+
+	if err != nil {
+		log.Error("Error making request:", err)
+	}
+
+	// unmarshal the response body
+	var data []TLE
+	err = json.Unmarshal(req.Body(), &data)
+	if err != nil {
+		return nil, err
+	}
+
+	// save the data to a file
+	err = saveDataToFile(tleFilepath, data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+func readDataFromFile(filepath string) ([]TLE, error) {
+	file, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	bytes, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
+	}
+
+	var data []TLE
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
+
+// saveDataToFile saves data to a file
+func saveDataToFile(filepath string, data []TLE) error {
+	file, err := os.Create(filepath)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	bytes, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	_, err = file.Write(bytes)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
