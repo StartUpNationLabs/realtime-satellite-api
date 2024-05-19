@@ -48,14 +48,16 @@ func Login(client *resty.Client, credentials Credentials) (LoggedInCredentials, 
 
 	resp, _ := req.Post(SPACE_TRACK_LOGIN_URL)
 
-	// Print the response status code
-	log.Info("Response Status:", resp.Status)
+	if resp.StatusCode() != 200 {
+		return LoggedInCredentials{}, fmt.Errorf("error making request to log in: %s, %s", resp.Status(), resp.String())
+	}
 	return LoggedInCredentials{credentials.Identity, credentials.Password, spacecraftCookie, chocolatechip}, nil
 }
 
 func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials LoggedInCredentials) ([]TLE, error) {
 	// if file exists, read from file
 	if _, err := os.Stat(tleFilepath); err == nil {
+		log.Info("Reading data from file")
 		data, err := readDataFromFile(tleFilepath)
 		if err != nil {
 			return nil, err
@@ -63,13 +65,17 @@ func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials Log
 		return data, nil
 
 	}
-
+	log.Info("Fetching data from spacetrack")
 	req, err := client.R().
 		SetHeader("Cookie", "spacetrack_csrf_cookie="+loggedInCredentials.spacecraftCookie+";"+"chocolatechip="+loggedInCredentials.chocolatechip).
 		Get(SPACE_TRACK_API)
 
 	if err != nil {
 		log.Error("Error making request:", err)
+	}
+	if req.StatusCode() != 200 {
+		log.Error("Error making request:", req.Status())
+		return nil, fmt.Errorf("error making request: %s, %s", req.Status(), req.String())
 	}
 
 	// unmarshal the response body

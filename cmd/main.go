@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	"github.com/joho/godotenv"
 	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/service"
 	"google.golang.org/grpc"
@@ -14,6 +15,10 @@ import (
 
 func main() {
 	ctx := context.Background()
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
@@ -23,7 +28,7 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
-	v1.RegisterSatelliteServiceServer(grpcServer, &service.SatelliteService{})
+	v1.RegisterSatelliteServiceServer(grpcServer, service.NewSatelliteService())
 	log.Println("gRPC server ready on localhost:5566...")
 	go func() {
 		err := grpcServer.Serve(lis)
