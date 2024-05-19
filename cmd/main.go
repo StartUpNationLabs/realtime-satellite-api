@@ -6,6 +6,7 @@ import (
 	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/service"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"log"
 	"net"
 	"net/http"
@@ -24,10 +25,15 @@ func main() {
 	grpcServer := grpc.NewServer()
 	v1.RegisterSatelliteServiceServer(grpcServer, &service.SatelliteService{})
 	log.Println("gRPC server ready on localhost:5566...")
-	go grpcServer.Serve(lis)
+	go func() {
+		err := grpcServer.Serve(lis)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	// dial the gRPC server above to make a client connection
-	conn, err := grpc.Dial("localhost:5566", grpc.WithInsecure())
+	conn, err := grpc.NewClient("localhost:5566", grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
@@ -50,6 +56,7 @@ func main() {
 
 	// mount a path to expose the generated OpenAPI specification on disk
 	mux.HandleFunc("/swagger-ui/swagger.json", func(w http.ResponseWriter, r *http.Request) {
+		log.Println("Serving OpenAPI specification...")
 		http.ServeFile(w, r, "./gen/v1/service.swagger.json")
 	})
 
