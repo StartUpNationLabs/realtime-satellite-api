@@ -6,3 +6,6 @@ services:
     ports:
       - 5566:5566
       - 8080:8080
+
+    volumes:
+      - ./data.json:/bin/data.json

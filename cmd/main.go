@@ -4,11 +4,11 @@ import (
 	"context"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
-	"log"
 	"net"
 	"net/http"
 )
@@ -17,7 +17,7 @@ func main() {
 	ctx := context.Background()
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatal("Error loading .env file")
+		log.Warnf("Error loading .env file")
 	}
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
