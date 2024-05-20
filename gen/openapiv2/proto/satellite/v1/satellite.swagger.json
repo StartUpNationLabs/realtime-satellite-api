@@ -163,22 +163,125 @@
     "v1SatelliteDetail": {
       "type": "object",
       "properties": {
-        "id": {
+        "ccsdsOmmVers": {
           "type": "string"
         },
-        "name": {
+        "comment": {
           "type": "string"
         },
-        "description": {
+        "creationDate": {
           "type": "string"
         },
-        "velocity": {
-          "type": "number",
-          "format": "double"
+        "originator": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string"
+        },
+        "objectId": {
+          "type": "string"
+        },
+        "centerName": {
+          "type": "string"
+        },
+        "refFrame": {
+          "type": "string"
+        },
+        "timeSystem": {
+          "type": "string"
+        },
+        "meanElementTheory": {
+          "type": "string"
+        },
+        "epoch": {
+          "type": "string"
+        },
+        "meanMotion": {
+          "type": "string"
+        },
+        "eccentricity": {
+          "type": "string"
+        },
+        "inclination": {
+          "type": "string"
+        },
+        "raOfAscNode": {
+          "type": "string"
+        },
+        "argOfPericenter": {
+          "type": "string"
+        },
+        "meanAnomaly": {
+          "type": "string"
+        },
+        "ephemerisType": {
+          "type": "string"
+        },
+        "classificationType": {
+          "type": "string"
+        },
+        "noradCatId": {
+          "type": "string"
+        },
+        "elementSetNo": {
+          "type": "string"
+        },
+        "revAtEpoch": {
+          "type": "string"
+        },
+        "bstar": {
+          "type": "string"
+        },
+        "meanMotionDot": {
+          "type": "string"
+        },
+        "meanMotionDdot": {
+          "type": "string"
+        },
+        "semimajorAxis": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "apoapsis": {
+          "type": "string"
+        },
+        "periapsis": {
+          "type": "string"
+        },
+        "objectType": {
+          "type": "string"
+        },
+        "rcsSize": {
+          "type": "string"
+        },
+        "countryCode": {
+          "type": "string"
         },
         "launchDate": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
+        },
+        "site": {
+          "type": "string"
+        },
+        "decayDate": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "gpId": {
+          "type": "string"
+        },
+        "tleLine0": {
+          "type": "string"
+        },
+        "tleLine1": {
+          "type": "string"
+        },
+        "tleLine2": {
+          "type": "string"
         }
       }
     }
