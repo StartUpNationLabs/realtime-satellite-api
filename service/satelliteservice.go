@@ -3,13 +3,16 @@ package service
 import (
 	"context"
 	"github.com/go-resty/resty/v2"
+	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	_ "google.golang.org/protobuf/types/known/emptypb"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"os"
+	"time"
 )
 
 type SatelliteService struct {
@@ -106,16 +109,39 @@ func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Sate
 }
 
 func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.GetSatellitePositionsRequest) (*v1.GetSatellitePositionsResponse, error) {
-	// print("GetSatellitePositions")
-	log.Info(req.GetTime())
+	calculatedPositions := make([]*v1.Satellite, 0)
+	reqTime := req.GetTime()
+	if reqTime == nil {
+		reqTime = &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   0,
+		}
+	}
+	// iterate over api.data
+	for id, data := range api.data {
+		log.Info("Calculating position for satellite", id)
+		log.Info(data.TLE_LINE1, data.TLE_LINE2)
+		goSat := satellite.TLEToSat(data.TLE_LINE1, data.TLE_LINE2, satellite.GravityWGS84)
+		// propagate the satellite position
+		t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
+
+		log.Info(goSat.ErrorStr, goSat.Error)
+		log.Info(t)
+		pos, vec := satellite.Propagate(goSat, t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+		log.Info(pos, vec)
+		gst := satellite.GSTimeFromDate(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
+
+		// convert Earth Centered Inertial coordinates to Lat/Long
+		altitude, velocity, ret := satellite.ECIToLLA(pos, gst)
+		calculatedPositions = append(calculatedPositions, &v1.Satellite{
+			Id:       id,
+			Lat:      ret.Latitude,
+			Lon:      ret.Longitude,
+			Altitude: altitude,
+			Velocity: velocity,
+		})
+	}
 	return &v1.GetSatellitePositionsResponse{
-		Satellites: []*v1.Satellite{
-			{
-				Id:       "1",
-				Lat:      0,
-				Lon:      0,
-				Altitude: float64(req.GetTime().GetSeconds()),
-			},
-		},
+		Satellites: calculatedPositions,
 	}, nil
 }

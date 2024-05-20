@@ -60,6 +60,13 @@
             "required": false,
             "type": "number",
             "format": "double"
+          },
+          {
+            "name": "velocity",
+            "in": "query",
+            "required": false,
+            "type": "number",
+            "format": "double"
           }
         ],
         "tags": [
@@ -155,6 +162,10 @@
           "format": "double"
         },
         "altitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "velocity": {
           "type": "number",
           "format": "double"
         }

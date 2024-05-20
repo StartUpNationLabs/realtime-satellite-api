@@ -10,6 +10,7 @@ message Satellite {
   double lat = 2;
   double lon = 3;
   double altitude = 4;
+  double velocity = 5;
 }
 
 
