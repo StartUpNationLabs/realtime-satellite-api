@@ -1,10 +1,10 @@
 version: v1
 plugins:
-  - name: go
+  - plugin: buf.build/protocolbuffers/go
     out: gen/go
     opt:
       - paths=source_relative
-  - name: go-grpc
+  - plugin: buf.build/grpc/go
     out: gen/go
     opt:
       - paths=source_relative
@@ -13,7 +13,7 @@ plugins:
     opt:
       - paths=source_relative
       - generate_unbound_methods=true
-  - name: openapiv2
+  - plugin: openapiv2
     out: gen/openapiv2
 
 
