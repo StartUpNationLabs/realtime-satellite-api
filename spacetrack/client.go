@@ -53,11 +53,19 @@ func Login(client *resty.Client, credentials Credentials) (LoggedInCredentials, 
 	return LoggedInCredentials{credentials.Identity, credentials.Password, spacecraftCookie, chocolatechip}, nil
 }
 
+func markData(data []TLE) []TLE {
+	for i := range data {
+		data[i].Group = []string{"Space-Track"}
+	}
+	return data
+}
+
 func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials LoggedInCredentials) ([]TLE, error) {
 	// if file exists, read from file
 	if _, err := os.Stat(tleFilepath); err == nil {
 		log.Info("Reading data from file")
 		data, err := readDataFromFile(tleFilepath)
+		data = markData(data)
 		if err != nil {
 			return nil, err
 		}
@@ -80,6 +88,7 @@ func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials Log
 	// unmarshal the response body
 	var data []TLE
 	err = json.Unmarshal(req.Body(), &data)
+	data = markData(data)
 	if err != nil {
 		return nil, err
 	}
