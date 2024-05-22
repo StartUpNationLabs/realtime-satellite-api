@@ -6,7 +6,7 @@ import (
 )
 
 func Test_scrap(t *testing.T) {
-	m, err := scrap()
+	m, err := Scrap()
 	if err != nil {
 		return
 	}

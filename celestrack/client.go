@@ -9,10 +9,13 @@ import (
 )
 
 func extractNoradIdFromTle(line2 string) string {
-	return strings.Split(line2, " ")[1]
+	// remove the 0 in the beginning
+	dirtyNorad := strings.Split(line2, " ")[1]
+	return strings.TrimLeft(dirtyNorad, "0")
+
 }
 
-func scrap() (map[string]spacetrack.TLE, error) {
+func Scrap() (map[string]spacetrack.TLE, error) {
 	url := "https://celestrak.org/NORAD/elements/"
 	// Get the HTML
 	client := resty.New()

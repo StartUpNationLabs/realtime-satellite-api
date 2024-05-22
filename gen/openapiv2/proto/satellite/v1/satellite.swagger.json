@@ -293,6 +293,12 @@
         },
         "tleLine2": {
           "type": "string"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       }
     }
