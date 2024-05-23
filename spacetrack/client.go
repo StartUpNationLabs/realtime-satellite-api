@@ -103,16 +103,14 @@ func (c *Client) FetchData() ([]TLE, error) {
 	// unmarshal the response body
 	var data []TLE
 	err = json.Unmarshal(req.Body(), &data)
-	data = markData(data)
-	if err != nil {
-		return nil, err
-	}
 
 	// save the data to a file
 	err = saveDataToFile(c.configuration.tleFile, data)
 	if err != nil {
 		return nil, err
 	}
+
+	data = markData(data)
 
 	return data, nil
 }

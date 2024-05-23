@@ -16,7 +16,7 @@ type Conf struct {
 const SpaceTrackUrl = "https://www.space-track.org"
 const SpaceTrackLoginUri = "/auth/login"
 const SpaceTrackFetchAllUri = "/basicspacedata/query/class/gp/decay_date/null-val/epoch/>now-30/orderby/norad_cat_id/format/json"
-const defaultTleFile = "/data/spacetrack.json"
+const defaultTleFile = "./data/spacetrack.json"
 
 func confFromEnv() Conf {
 	spaceTrackConf := Conf{}

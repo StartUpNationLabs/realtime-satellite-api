@@ -4,9 +4,31 @@ import (
 	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
+	"os"
 	"regexp"
 	"strings"
 )
+
+type Client struct {
+	client *resty.Client
+	conf   Conf
+}
+type Conf struct {
+	baseUrl string
+}
+
+func New() Client {
+	c := Client{}
+	c.client = resty.New()
+	if url := os.Getenv("CELESTRACK_URL"); url != "" {
+		c.conf.baseUrl = url
+	} else {
+		c.conf.baseUrl = "https://celestrak.com/NORAD/elements/"
+
+	}
+
+	return c
+}
 
 func extractNoradIdFromTle(line2 string) string {
 	// remove the 0 in the beginning
@@ -15,11 +37,9 @@ func extractNoradIdFromTle(line2 string) string {
 
 }
 
-func Scrap() (map[string]spacetrack.TLE, error) {
-	url := "https://celestrak.org/NORAD/elements/"
+func (c *Client) Scrap() (map[string]spacetrack.TLE, error) {
 	// Get the HTML
-	client := resty.New()
-	resp, err := client.R().Get(url)
+	resp, err := c.client.R().Get(c.conf.baseUrl)
 	if err != nil {
 		return nil, err
 	}
@@ -33,7 +53,7 @@ func Scrap() (map[string]spacetrack.TLE, error) {
 		log.Info("Fetching Group: ", group)
 
 		// Get the TLE file
-		resp, err := client.R().Get(url + "gp.php?GROUP=" + group + "&FORMAT=tle")
+		resp, err := c.client.R().Get(c.conf.baseUrl + "gp.php?GROUP=" + group + "&FORMAT=tle")
 		if err != nil {
 			return nil, err
 		}

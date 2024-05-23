@@ -1,5 +1,7 @@
 package spacetrack
 
+import "github.com/joshuaferrara/go-satellite"
+
 // Credentials  is a struct that holds the username and password of the user
 type Credentials struct {
 	Identity string
@@ -52,4 +54,5 @@ type TLE struct {
 	TLE_LINE1           string `json:"TLE_LINE1"`
 	TLE_LINE2           string `json:"TLE_LINE2"`
 	Group               []string
+	Sat                 satellite.Satellite
 }

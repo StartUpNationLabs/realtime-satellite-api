@@ -5,8 +5,6 @@ import (
 	"time"
 
 	"github.com/joshuaferrara/go-satellite"
-	log "github.com/sirupsen/logrus"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/celestrack"
 	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 	"google.golang.org/grpc/codes"
@@ -18,51 +16,6 @@ import (
 type SatelliteService struct {
 	*v1.UnimplementedSatelliteServiceServer
 	data map[string]spacetrack.TLE
-}
-
-func NewSatelliteService() *SatelliteService {
-	spacetrackClient, err := spacetrack.New()
-	if err != nil {
-		log.Error(err)
-
-	}
-	data, err := spacetrackClient.FetchData()
-	if err != nil {
-		log.Error(err)
-	}
-
-	calculatedMap := make(map[string]spacetrack.TLE)
-	for _, tle := range data {
-		if tle.NORAD_CAT_ID == "" {
-			log.Fatalf("NORAD_CAT_ID is empty in %v", tle)
-		}
-		// check if the object id is already in the map
-		if _, ok := calculatedMap[tle.NORAD_CAT_ID]; ok {
-			log.Fatalf("NORAD_CAT_ID %v is already in the map", tle.OBJECT_ID)
-		}
-		calculatedMap[tle.NORAD_CAT_ID] = tle
-
-	}
-
-	// fetch from celestrak
-	celestrakData, err := celestrack.Scrap()
-	if err != nil {
-		log.Error(err)
-	}
-	for k, v := range celestrakData {
-		sat, ok := calculatedMap[k]
-		if !ok {
-			calculatedMap[k] = v
-			log.Info("Added ", k)
-			continue
-		}
-		sat.Group = append(sat.Group, v.Group...)
-		calculatedMap[k] = sat
-	}
-	log.Info("Total satellites: ", len(calculatedMap))
-	return &SatelliteService{
-		data: calculatedMap,
-	}
 }
 
 func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Satellite) (*v1.SatelliteDetail, error) {
@@ -118,7 +71,7 @@ func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Sate
 	}, nil
 }
 
-func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.GetSatellitePositionsRequest) (*v1.GetSatellitePositionsResponse, error) {
+func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.GetSatellitePositionsRequest) (*v1.GetSatellitePositionsResponse, error) {
 	calculatedPositions := make([]*v1.Satellite, 0)
 	reqTime := req.GetTime()
 	if reqTime == nil {
@@ -127,35 +80,18 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 			Nanos:   0,
 		}
 	}
+
 	// iterate over api.data
-	for id, data := range api.data {
-		log.Info("Calculating position for satellite", id)
-		log.Info(data.TLE_LINE1, data.TLE_LINE2)
-
-		// Handle the NORAD ID in the TLE line
-		tleLine1 := data.TLE_LINE1
-		noradID := tleLine1[2:7]
-
-		// If the NOARD ID begin with a letter it'll be ignored for the parsing but putted back in the response
-		if !isNumeric(noradID) {
-			tleLine1 = tleLine1[:2] + " " + noradID[1:] + tleLine1[7:]
-		}
-
-		goSat := satellite.TLEToSat(tleLine1, data.TLE_LINE2, satellite.GravityWGS84)
-
+	for _, data := range api.data {
 		// propagate the satellite position
 		t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
-
-		log.Info(goSat.ErrorStr, goSat.Error)
-		log.Info(t)
-		pos, vec := satellite.Propagate(goSat, t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
-		log.Info(pos, vec)
+		pos, _ := satellite.Propagate(data.Sat, t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 		gst := satellite.GSTimeFromDate(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 
 		// convert Earth Centered Inertial coordinates to Lat/Long
 		altitude, velocity, ret := satellite.ECIToLLA(pos, gst)
 		calculatedPositions = append(calculatedPositions, &v1.Satellite{
-			Id:       noradID,
+			Id:       data.NORAD_CAT_ID,
 			Name:     data.OBJECT_NAME,
 			Lat:      ret.Latitude,
 			Lon:      ret.Longitude,
@@ -166,13 +102,4 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 	return &v1.GetSatellitePositionsResponse{
 		Satellites: calculatedPositions,
 	}, nil
-}
-
-func isNumeric(s string) bool {
-	for _, c := range s {
-		if c < '0' || c > '9' {
-			return false
-		}
-	}
-	return true
 }

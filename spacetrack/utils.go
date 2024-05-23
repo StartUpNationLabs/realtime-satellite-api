@@ -5,6 +5,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 )
 
 func readDataFromFile(filepath string) ([]TLE, error) {
@@ -35,8 +36,15 @@ func readDataFromFile(filepath string) ([]TLE, error) {
 }
 
 // saveDataToFile saves data to a file
-func saveDataToFile(filepath string, data []TLE) error {
-	file, err := os.Create(filepath)
+func saveDataToFile(filepath2 string, data []TLE) error {
+
+	// create the folder if it doesn't exist
+	err := os.MkdirAll(filepath.Dir(filepath2), os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(filepath2)
 	if err != nil {
 		return err
 	}
