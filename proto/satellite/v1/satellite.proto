@@ -11,6 +11,7 @@ message Satellite {
   double lon = 3;
   double altitude = 4;
   double velocity = 5;
+  string name = 6;
 }
 
 

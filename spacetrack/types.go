@@ -6,8 +6,6 @@ type Credentials struct {
 	Password string
 }
 type LoggedInCredentials struct {
-	identity         string
-	password         string
 	spacecraftCookie string
 	chocolatechip    string
 }

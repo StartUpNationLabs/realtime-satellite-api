@@ -2,10 +2,8 @@ package service
 
 import (
 	"context"
-	"os"
 	"time"
 
-	"github.com/go-resty/resty/v2"
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/celestrack"
@@ -23,18 +21,12 @@ type SatelliteService struct {
 }
 
 func NewSatelliteService() *SatelliteService {
-	client := resty.New()
-
-	credentials, err := spacetrack.Login(client, spacetrack.Credentials{
-		Identity: os.Getenv("identity"),
-		Password: os.Getenv("password"),
-	})
-
+	spacetrackClient, err := spacetrack.New()
 	if err != nil {
 		log.Error(err)
 
 	}
-	data, err := spacetrack.FetchData(client, "data.json", credentials)
+	data, err := spacetrackClient.FetchData()
 	if err != nil {
 		log.Error(err)
 	}
@@ -164,6 +156,7 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 		altitude, velocity, ret := satellite.ECIToLLA(pos, gst)
 		calculatedPositions = append(calculatedPositions, &v1.Satellite{
 			Id:       noradID,
+			Name:     data.OBJECT_NAME,
 			Lat:      ret.Latitude,
 			Lon:      ret.Longitude,
 			Altitude: altitude,

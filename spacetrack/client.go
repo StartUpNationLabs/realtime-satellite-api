@@ -12,10 +12,24 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Login(client *resty.Client, credentials Credentials) (LoggedInCredentials, error) {
+type Client struct {
+	client              *resty.Client
+	loggedInCredentials LoggedInCredentials
+	configuration       Conf
+}
 
-	loginPage, _ := client.R().
-		Get(SPACE_TRACK_LOGIN_URL)
+func New() (Client, error) {
+	c := Client{}
+	c.client = resty.New()
+	c.configuration = confFromEnv()
+
+	return c, nil
+}
+
+func (c *Client) Login() error {
+	log.Info("Logging in")
+	loginPage, _ := c.client.R().
+		Get(c.configuration.LoginUrl)
 
 	spacecraftCookie := ""
 	chocolatechip := ""
@@ -29,28 +43,29 @@ func Login(client *resty.Client, credentials Credentials) (LoggedInCredentials, 
 	}
 
 	if chocolatechip == "" || spacecraftCookie == "" {
-		return LoggedInCredentials{}, fmt.Errorf("the cookie aren't fectched successfully :/")
+		return fmt.Errorf("error getting cookies")
 	}
 
 	// Create form data
 	formData := url.Values{}
-	formData.Set("identity", credentials.Identity)
-	formData.Set("password", credentials.Password)
+	formData.Set("identity", c.configuration.username)
+	formData.Set("password", c.configuration.password)
 	formData.Set("spacetrack_csrf_token", spacecraftCookie)
 	formData.Set("btnLogin", "LOGIN")
 
 	// Create a new request
-	req := client.R().
+	req := c.client.R().
 		SetFormDataFromValues(formData).
 		SetHeader("Content-Type", "application/x-www-form-urlencoded").
 		SetHeader("Cookie", "spacetrack_csrf_cookie="+spacecraftCookie+";"+"chocolatechip="+chocolatechip)
 
-	resp, _ := req.Post(SPACE_TRACK_LOGIN_URL)
+	resp, _ := req.Post(c.configuration.LoginUrl)
 
 	if resp.StatusCode() != 200 {
-		return LoggedInCredentials{}, fmt.Errorf("error making request to log in: %s, %s", resp.Status(), resp.String())
+		return fmt.Errorf("error making request: %s, %s", resp.Status(), resp.String())
 	}
-	return LoggedInCredentials{credentials.Identity, credentials.Password, spacecraftCookie, chocolatechip}, nil
+	c.loggedInCredentials = LoggedInCredentials{spacecraftCookie, chocolatechip}
+	return nil
 }
 
 func markData(data []TLE) []TLE {
@@ -60,11 +75,11 @@ func markData(data []TLE) []TLE {
 	return data
 }
 
-func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials LoggedInCredentials) ([]TLE, error) {
+func (c *Client) FetchData() ([]TLE, error) {
 	// if file exists, read from file
-	if _, err := os.Stat(tleFilepath); err == nil {
+	if _, err := os.Stat(c.configuration.tleFile); err == nil {
 		log.Info("Reading data from file")
-		data, err := readDataFromFile(tleFilepath)
+		data, err := readDataFromFile(c.configuration.tleFile)
 		data = markData(data)
 		if err != nil {
 			return nil, err
@@ -73,9 +88,9 @@ func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials Log
 
 	}
 	log.Info("Fetching data from spacetrack")
-	req, err := client.R().
-		SetHeader("Cookie", "spacetrack_csrf_cookie="+loggedInCredentials.spacecraftCookie+";"+"chocolatechip="+loggedInCredentials.chocolatechip).
-		Get(SPACE_TRACK_API)
+	req, err := c.client.R().
+		SetHeader("Cookie", "spacetrack_csrf_cookie="+c.loggedInCredentials.spacecraftCookie+";"+"chocolatechip="+c.loggedInCredentials.chocolatechip).
+		Get(c.configuration.FetchAllUrl)
 
 	if err != nil {
 		log.Error("Error making request:", err)
@@ -94,7 +109,7 @@ func FetchData(client *resty.Client, tleFilepath string, loggedInCredentials Log
 	}
 
 	// save the data to a file
-	err = saveDataToFile(tleFilepath, data)
+	err = saveDataToFile(c.configuration.tleFile, data)
 	if err != nil {
 		return nil, err
 	}
