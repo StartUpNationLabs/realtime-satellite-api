@@ -21,9 +21,10 @@ func New() Client {
 	c := Client{}
 	c.client = resty.New()
 	if url := os.Getenv("CELESTRACK_URL"); url != "" {
+		log.Info("Using CELESTRACK_URL: ", url)
 		c.conf.baseUrl = url
 	} else {
-		c.conf.baseUrl = "https://celestrak.com/NORAD/elements/"
+		c.conf.baseUrl = "https://celestrak.com/NORAD/elements"
 
 	}
 
@@ -39,7 +40,7 @@ func extractNoradIdFromTle(line2 string) string {
 
 func (c *Client) Scrap() (map[string]spacetrack.TLE, error) {
 	// Get the HTML
-	resp, err := c.client.R().Get(c.conf.baseUrl)
+	resp, err := c.client.R().Get(c.conf.baseUrl + "/")
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +54,7 @@ func (c *Client) Scrap() (map[string]spacetrack.TLE, error) {
 		log.Info("Fetching Group: ", group)
 
 		// Get the TLE file
-		resp, err := c.client.R().Get(c.conf.baseUrl + "gp.php?GROUP=" + group + "&FORMAT=tle")
+		resp, err := c.client.R().Get(c.conf.baseUrl + "/gp.php?GROUP=" + group + "&FORMAT=tle")
 		if err != nil {
 			return nil, err
 		}
