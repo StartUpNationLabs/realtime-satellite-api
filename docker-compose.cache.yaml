@@ -1,0 +1,8 @@
+services:
+  nginx-cache:
+    build:
+      context: nginx-cache
+
+    ports:
+      - 9080:80
+      - 9081:81
