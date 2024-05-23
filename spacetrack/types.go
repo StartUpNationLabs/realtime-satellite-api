@@ -53,4 +53,5 @@ type TLE struct {
 	TLE_LINE0           string `json:"TLE_LINE0"`
 	TLE_LINE1           string `json:"TLE_LINE1"`
 	TLE_LINE2           string `json:"TLE_LINE2"`
+	Group               []string
 }

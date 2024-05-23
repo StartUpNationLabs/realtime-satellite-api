@@ -55,6 +55,7 @@ message SatelliteDetail {
   string tle_line0 = 38;
   string tle_line1 = 39;
   string tle_line2 = 40;
+  repeated string groups = 41;
 }
 
 message GetSatellitePositionsRequest {

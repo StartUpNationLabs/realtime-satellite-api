@@ -8,6 +8,7 @@ import (
 	"github.com/go-resty/resty/v2"
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
+	"github.com/tsukoyachi/react-flight-tracker-satellite/celestrack"
 	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 	"google.golang.org/grpc/codes"
@@ -37,7 +38,6 @@ func NewSatelliteService() *SatelliteService {
 	if err != nil {
 		log.Error(err)
 	}
-	log.Println(len(data))
 
 	calculatedMap := make(map[string]spacetrack.TLE)
 	for _, tle := range data {
@@ -52,6 +52,22 @@ func NewSatelliteService() *SatelliteService {
 
 	}
 
+	// fetch from celestrak
+	celestrakData, err := celestrack.Scrap()
+	if err != nil {
+		log.Error(err)
+	}
+	for k, v := range celestrakData {
+		sat, ok := calculatedMap[k]
+		if !ok {
+			calculatedMap[k] = v
+			log.Info("Added ", k)
+			continue
+		}
+		sat.Group = append(sat.Group, v.Group...)
+		calculatedMap[k] = sat
+	}
+	log.Info("Total satellites: ", len(calculatedMap))
 	return &SatelliteService{
 		data: calculatedMap,
 	}
@@ -106,6 +122,7 @@ func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Sate
 		TleLine0:           tle.TLE_LINE0,
 		TleLine1:           tle.TLE_LINE1,
 		TleLine2:           tle.TLE_LINE2,
+		Groups:             tle.Group,
 	}, nil
 }
 
