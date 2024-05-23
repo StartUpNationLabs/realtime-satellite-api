@@ -6,3 +6,8 @@ services:
     ports:
       - 9080:80
       - 9081:81
+  api:
+    image: ghcr.io/tsukoyachi/react-flight-tracker-satellite/api
+    ports:
+      - 5566:5566
+      - 8080:8080
