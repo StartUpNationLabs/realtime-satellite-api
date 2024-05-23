@@ -2,17 +2,18 @@ package service
 
 import (
 	"context"
+	"os"
+	"time"
+
 	"github.com/go-resty/resty/v2"
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
+	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	_ "google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
-	"os"
-	"time"
 )
 
 type SatelliteService struct {
@@ -121,7 +122,18 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 	for id, data := range api.data {
 		log.Info("Calculating position for satellite", id)
 		log.Info(data.TLE_LINE1, data.TLE_LINE2)
-		goSat := satellite.TLEToSat(data.TLE_LINE1, data.TLE_LINE2, satellite.GravityWGS84)
+
+		// Handle the NORAD ID in the TLE line
+		tleLine1 := data.TLE_LINE1
+		noradID := tleLine1[2:7]
+
+		// If the NOARD ID begin with a letter it'll be ignored for the parsing but putted back in the response
+		if !isNumeric(noradID) {
+			tleLine1 = tleLine1[:2] + " " + noradID[1:] + tleLine1[7:]
+		}
+
+		goSat := satellite.TLEToSat(tleLine1, data.TLE_LINE2, satellite.GravityWGS84)
+
 		// propagate the satellite position
 		t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
 
@@ -134,7 +146,7 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 		// convert Earth Centered Inertial coordinates to Lat/Long
 		altitude, velocity, ret := satellite.ECIToLLA(pos, gst)
 		calculatedPositions = append(calculatedPositions, &v1.Satellite{
-			Id:       id,
+			Id:       noradID,
 			Lat:      ret.Latitude,
 			Lon:      ret.Longitude,
 			Altitude: altitude,
@@ -144,4 +156,13 @@ func (api SatelliteService) GetSatellitePositions(ctx context.Context, req *v1.G
 	return &v1.GetSatellitePositionsResponse{
 		Satellites: calculatedPositions,
 	}, nil
+}
+
+func isNumeric(s string) bool {
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
