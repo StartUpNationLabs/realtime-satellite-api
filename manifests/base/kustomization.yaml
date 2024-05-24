@@ -5,3 +5,4 @@ resources:
   - api-service.yaml
   - nginx-cache-deployment.yaml
   - nginx-cache-service.yaml
+  - api-ingress.yaml

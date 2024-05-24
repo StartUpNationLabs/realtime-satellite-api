@@ -31,9 +31,30 @@ jobs:
         id: downcase
         run: |
           echo "::set-output name=downcase::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')"
-      - name: Build and push
+      - name: Build and push api image
         uses: docker/build-push-action@v5
         with:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/${{ steps.downcase.outputs.downcase }}/api:${{ github.sha }}, ghcr.io/${{ steps.downcase.outputs.downcase }}/api:${{ github.ref_name }}
+
+      - name: Build and push cache
+        uses: docker/build-push-action@v5
+        with:
+          platforms: linux/amd64,linux/arm64
+          push: true
+          context: ./nginx-cache
+          tags: ghcr.io/${{ steps.downcase.outputs.downcase }}/cache:${{ github.sha }}, ghcr.io/${{ steps.downcase.outputs.downcase }}/cache:${{ github.ref_name }}
+
+      # sed the image tag in manifests/dev/kustomization.yaml if the branch is develop else in manifests/prod/kustomization.yaml if the branch is main
+      - name: Image digest
+        run: |
+          sed -i "s/newTag: .*/newTag: ${{ github.sha }}/g" manifests/overlays/${{ github.ref_name }}/kustomization.yaml
+          cat manifests/overlays/${{ github.ref_name }}/kustomization.yaml
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "github@action.com"
+          git add manifests/kustomization.yaml
+          git commit -m "Update image tag to ${{ github.sha }}"
+          git push

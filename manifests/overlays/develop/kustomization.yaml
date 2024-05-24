@@ -13,3 +13,10 @@ images:
   - name: nginx-cache
     newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/nginx-cache
     newTag: v1.0.0
+
+
+patches:
+  - target:
+      kind: Ingress
+      name: react-flight-tracker-ingress
+    path: ingress-patch.yaml
