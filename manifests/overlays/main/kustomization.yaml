@@ -11,7 +11,7 @@ images:
     newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/api
     newTag: v1.0.0
   - name: nginx-cache
-    newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/nginx-cache
+    newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/cache
     newTag: v1.0.0
 
 
