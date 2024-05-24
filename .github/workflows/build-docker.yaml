@@ -10,9 +10,7 @@ on:
 
 jobs:
   docker:
-    permissions:
-      packages: write
-      contents: read
+    permissions: write-all
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
