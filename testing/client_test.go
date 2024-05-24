@@ -1,9 +1,9 @@
 package testing
 
 import (
+	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 	"testing"
 )
 

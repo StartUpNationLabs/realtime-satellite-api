@@ -1,10 +1,9 @@
 package service
 
 import (
-	"github.com/joshuaferrara/go-satellite"
+	"github.com/StartUpNationLabs/react-flight-tracker-satellite/celestrack"
+	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	log "github.com/sirupsen/logrus"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/celestrack"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
 )
 
 func NewSatelliteService() *SatelliteService {

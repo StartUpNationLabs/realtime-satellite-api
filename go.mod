@@ -1,4 +1,4 @@
-module github.com/tsukoyachi/react-flight-tracker-satellite
+module github.com/StartUpNationLabs/react-flight-tracker-satellite
 
 go 1.22.2
 

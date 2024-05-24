@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
+	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
+	"github.com/StartUpNationLabs/react-flight-tracker-satellite/service"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
-	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/service"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"net"

@@ -1,6 +1,6 @@
 syntax = "proto3";
 package satellite.v1;
-option  go_package = "github.com/Tsukoyachi/react-flight-tracker-satellite/gen/go/v1";
+option  go_package = "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/v1";
 
 import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";

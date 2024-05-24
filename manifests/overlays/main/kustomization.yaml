@@ -4,11 +4,11 @@ resources:
   - ../../base
 
 images:
-  - name: ghcr.io/tsukoyachi/react-flight-tracker-satellite/api
-    newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/api
+  - name: ghcr.io/StartUpNationLabs/react-flight-tracker-satellite/api
+    newName: ghcr.io/StartUpNationLabs/react-flight-tracker-satellite/api
     newTag: v1.0.0
   - name: nginx-cache
-    newName: ghcr.io/tsukoyachi/react-flight-tracker-satellite/cache
+    newName: ghcr.io/StartUpNationLabs/react-flight-tracker-satellite/cache
     newTag: v1.0.0
 
 

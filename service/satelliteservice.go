@@ -3,9 +3,8 @@ package service
 import (
 	"context"
 	"fmt"
-	"github.com/joshuaferrara/go-satellite"
-	v1 "github.com/tsukoyachi/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
-	"github.com/tsukoyachi/react-flight-tracker-satellite/spacetrack"
+	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
+	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"golang.org/x/exp/maps"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

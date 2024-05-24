@@ -44,7 +44,7 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           context: ./nginx-cache
-          tags: ghcr.io/${{ steps.downcase.outputs.downcase }}/cache:${{ github.sha }}, ghcr.io/${{ steps.downcase.outputs.downcase }}/cache:${{ github.ref_name }}
+          tags: ghcr.io/${{ steps.downcase.outputs.downcase }}/nginx-cache:${{ github.sha }}, ghcr.io/${{ steps.downcase.outputs.downcase }}/nginx-cache:${{ github.ref_name }}
 
       # sed the image tag in manifests/dev/kustomization.yaml if the branch is develop else in manifests/prod/kustomization.yaml if the branch is main
       - name: Image digest

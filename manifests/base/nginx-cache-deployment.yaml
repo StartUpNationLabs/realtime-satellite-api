@@ -15,7 +15,7 @@ spec:
         io.kompose.service: nginx-cache
     spec:
       containers:
-        - image: nginx-cache
+        - image: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
           name: nginx-cache
           ports:
             - containerPort: 80
