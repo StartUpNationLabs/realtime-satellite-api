@@ -36,4 +36,6 @@ spec:
               value: http://nginx-cache:9081/NORAD/elements
             - name: SPACETRACK_URL
               value: http://nginx-cache:9080
+            - name: HOST
+              value: "0.0.0.0"
       restartPolicy: Always

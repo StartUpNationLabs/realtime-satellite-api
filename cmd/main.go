@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -19,17 +20,23 @@ func main() {
 	if err != nil {
 		log.Warnf("Error loading .env file")
 	}
+
+	host := "localhost"
+	if os.Getenv("HOST") != "" {
+		host = os.Getenv("HOST")
+	}
+
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
 
 	// start the gRPC server
-	lis, err := net.Listen("tcp", "localhost:5566")
+	lis, err := net.Listen("tcp", host+":5566")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	v1.RegisterSatelliteServiceServer(grpcServer, service.NewSatelliteService())
-	log.Println("gRPC server ready on localhost:5566...")
+	log.Println("gRPC server ready on ", host+":5566")
 	go func() {
 		err := grpcServer.Serve(lis)
 		if err != nil {
@@ -68,8 +75,8 @@ func main() {
 	// mount the Swagger UI that uses the OpenAPI specification path above
 	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.Dir("./swagger-ui"))))
 
-	log.Println("HTTP server ready on localhost:8080...")
-	err = http.ListenAndServe("localhost:8080", mux)
+	log.Println("HTTP server ready on " + host + ":8080")
+	err = http.ListenAndServe(host+":8080", mux)
 	if err != nil {
 		log.Fatal(err)
 	}
