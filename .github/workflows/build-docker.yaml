@@ -55,6 +55,6 @@ jobs:
         run: |
           git config --global user.name "GitHub Actions"
           git config --global user.email "github@action.com"
-          git add manifests/kustomization.yaml
+          git add manifests/overlays/${{ github.ref_name }}/kustomization.yaml
           git commit -m "Update image tag to ${{ github.sha }}"
           git push
