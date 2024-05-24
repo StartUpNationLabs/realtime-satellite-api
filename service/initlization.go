@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/celestrack"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
+	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 )
 

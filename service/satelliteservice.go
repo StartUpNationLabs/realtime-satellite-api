@@ -5,6 +5,7 @@ import (
 	"fmt"
 	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
+	"github.com/joshuaferrara/go-satellite"
 	"golang.org/x/exp/maps"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"

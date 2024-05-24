@@ -2,6 +2,7 @@ package celestrack
 
 import (
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
+	"github.com/go-resty/resty/v2"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"regexp"
