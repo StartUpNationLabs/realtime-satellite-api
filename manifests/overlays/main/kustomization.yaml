@@ -15,5 +15,5 @@ images:
 patches:
   - target:
       kind: Ingress
-      name: react-flight-tracker-ingress
+      name: api-ingress
     path: ingress-patch.yaml
