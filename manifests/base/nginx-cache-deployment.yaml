@@ -1,11 +1,11 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   labels:
     io.kompose.service: nginx-cache
   name: nginx-cache
 spec:
-  replicas: 2
+  serviceName: "nginx-cache"
   selector:
     matchLabels:
       io.kompose.service: nginx-cache
@@ -14,6 +14,7 @@ spec:
       labels:
         io.kompose.service: nginx-cache
     spec:
+      replicas: 2
       containers:
         - image: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
           name: nginx-cache
