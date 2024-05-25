@@ -5,6 +5,7 @@ import (
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
+	"golang.org/x/exp/maps"
 )
 
 func NewSatelliteService() *SatelliteService {
@@ -62,7 +63,8 @@ func NewSatelliteService() *SatelliteService {
 	}
 	log.Info("Total satellites: ", len(calculatedMap))
 	return &SatelliteService{
-		data: calculatedMap,
+		data:       calculatedMap,
+		data_array: maps.Values(calculatedMap),
 	}
 }
 

@@ -61,6 +61,7 @@ message SatelliteDetail {
 
 message GetSatellitePositionsRequest {
   google.protobuf.Timestamp time = 1;
+  repeated string groups = 2;
 }
 
 message GetSatellitePositionsResponse {

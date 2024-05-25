@@ -5,7 +5,7 @@ metadata:
     io.kompose.service: nginx-cache
   name: nginx-cache
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: nginx-cache
@@ -31,4 +31,11 @@ spec:
             limits:
               cpu: "500m"
               memory: "512Mi"
+          volumeMounts:
+            - name: cache-volume
+              mountPath: /var/cache/nginx
       restartPolicy: Always
+      volumes:
+        - name: cache-volume
+          persistentVolumeClaim:
+            claimName: nginx-cache-pvc

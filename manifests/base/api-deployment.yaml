@@ -5,7 +5,7 @@ metadata:
     io.kompose.service: api
   name: api
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       io.kompose.service: api

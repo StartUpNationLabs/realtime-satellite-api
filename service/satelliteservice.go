@@ -6,7 +6,7 @@ import (
 	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"github.com/joshuaferrara/go-satellite"
-	"golang.org/x/exp/maps"
+	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	_ "google.golang.org/protobuf/types/known/emptypb"
@@ -17,7 +17,8 @@ import (
 
 type SatelliteService struct {
 	*v1.UnimplementedSatelliteServiceServer
-	data map[string]spacetrack.TLE
+	data       map[string]spacetrack.TLE
+	data_array []spacetrack.TLE
 }
 
 func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Satellite) (*v1.SatelliteDetail, error) {
@@ -73,6 +74,16 @@ func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Sate
 	}, nil
 }
 
+func compareGroups(a []string, b []string) bool {
+	// if every of a is not in b, return false
+	for _, group := range a {
+		if !slices.Contains(b, group) {
+			return false
+		}
+	}
+	return true
+}
+
 func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.GetSatellitePositionsRequest) (*v1.GetSatellitePositionsResponse, error) {
 	reqTime := req.GetTime()
 	if reqTime == nil {
@@ -83,12 +94,24 @@ func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.Get
 	}
 	t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
 
+	// filter the satellites by the group if provided
+	filteredData := make([]spacetrack.TLE, 0)
+	if len(req.Groups) > 0 {
+		for _, sat := range api.data_array {
+			if compareGroups(req.Groups, sat.Group) {
+				filteredData = append(filteredData, sat)
+			}
+		}
+	} else {
+		filteredData = api.data_array
+	}
+
 	return &v1.GetSatellitePositionsResponse{
-		Satellites: CalculateSatPositionsParrallel(t, api.data),
+		Satellites: CalculateSatPositionsParrallel(t, &filteredData),
 	}, nil
 }
 
-func CalculateSatPosition(t time.Time, sat spacetrack.TLE) *v1.Satellite {
+func CalculateSatPosition(t time.Time, sat *spacetrack.TLE) *v1.Satellite {
 	// propagate the satellite position
 	pos, _ := satellite.Propagate(sat.Sat, t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
 	gst := satellite.GSTimeFromDate(t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())
@@ -105,32 +128,32 @@ func CalculateSatPosition(t time.Time, sat spacetrack.TLE) *v1.Satellite {
 	}
 }
 
-func CalculateChunk(t time.Time, sats []spacetrack.TLE) []*v1.Satellite {
+func CalculateChunk(t time.Time, sats *[]spacetrack.TLE) []*v1.Satellite {
 	calculatedPositions := make([]*v1.Satellite, 0)
-	for _, data := range sats {
-		calculatedPositions = append(calculatedPositions, CalculateSatPosition(t, data))
+	for _, data := range *sats {
+		calculatedPositions = append(calculatedPositions, CalculateSatPosition(t, &data))
 	}
 	return calculatedPositions
 }
 
-func Chunkify(t time.Time, sats []spacetrack.TLE, numberOfChunks int) [][]spacetrack.TLE {
-	chunkSize := len(sats) / numberOfChunks
+func Chunkify(sats *[]spacetrack.TLE, numberOfChunks int) [][]spacetrack.TLE {
+	chunkSize := len(*sats) / numberOfChunks
 	chunks := make([][]spacetrack.TLE, 0)
-	for i := 0; i < len(sats); i += chunkSize {
+	for i := 0; i < len(*sats); i += chunkSize {
 		end := i + chunkSize
-		if end > len(sats) {
-			end = len(sats)
+		if end > len(*sats) {
+			end = len(*sats)
 		}
-		chunks = append(chunks, sats[i:end])
+		chunks = append(chunks, (*sats)[i:end])
 	}
 	return chunks
 }
 
-func CalculateSatPositionsParrallel(t time.Time, data map[string]spacetrack.TLE) []*v1.Satellite {
+func CalculateSatPositionsParrallel(t time.Time, data *[]spacetrack.TLE) []*v1.Satellite {
 	// chunkify the data
 	time1 := time.Now()
 	// chunk to the number of CPUs
-	chunks := Chunkify(t, maps.Values(data), runtime.NumCPU())
+	chunks := Chunkify(data, runtime.NumCPU())
 	time2 := time.Now()
 	fmt.Println("Time to chunkify: ", time2.Sub(time1))
 
@@ -138,7 +161,7 @@ func CalculateSatPositionsParrallel(t time.Time, data map[string]spacetrack.TLE)
 	ch := make(chan []*v1.Satellite)
 	for _, chunk := range chunks {
 		go func(chunk []spacetrack.TLE) {
-			ch <- CalculateChunk(t, chunk)
+			ch <- CalculateChunk(t, &chunk)
 		}(chunk)
 	}
 	time3 := time.Now()
