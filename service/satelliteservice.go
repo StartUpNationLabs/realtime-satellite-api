@@ -21,7 +21,7 @@ type SatelliteService struct {
 	data_array []spacetrack.TLE
 }
 
-func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Satellite) (*v1.SatelliteDetail, error) {
+func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.SatelliteDetailRequest) (*v1.SatelliteDetail, error) {
 	// Check if the satellite id is in the map
 	tle, ok := api.data[req.Id]
 	if !ok {

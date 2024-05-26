@@ -67,12 +67,8 @@ func local_request_SatelliteService_GetSatellitePositions_0(ctx context.Context,
 
 }
 
-var (
-	filter_SatelliteService_GetSatelliteDetail_0 = &utilities.DoubleArray{Encoding: map[string]int{"id": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
-)
-
 func request_SatelliteService_GetSatelliteDetail_0(ctx context.Context, marshaler runtime.Marshaler, client SatelliteServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Satellite
+	var protoReq SatelliteDetailRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -90,13 +86,6 @@ func request_SatelliteService_GetSatelliteDetail_0(ctx context.Context, marshale
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SatelliteService_GetSatelliteDetail_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.GetSatelliteDetail(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -105,7 +94,7 @@ func request_SatelliteService_GetSatelliteDetail_0(ctx context.Context, marshale
 }
 
 func local_request_SatelliteService_GetSatelliteDetail_0(ctx context.Context, marshaler runtime.Marshaler, server SatelliteServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq Satellite
+	var protoReq SatelliteDetailRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -123,13 +112,6 @@ func local_request_SatelliteService_GetSatelliteDetail_0(ctx context.Context, ma
 	protoReq.Id, err = runtime.String(val)
 	if err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "id", err)
-	}
-
-	if err := req.ParseForm(); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
-	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_SatelliteService_GetSatelliteDetail_0); err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := server.GetSatelliteDetail(ctx, &protoReq)

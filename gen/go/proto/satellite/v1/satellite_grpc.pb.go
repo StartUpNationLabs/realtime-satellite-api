@@ -28,7 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type SatelliteServiceClient interface {
 	GetSatellitePositions(ctx context.Context, in *GetSatellitePositionsRequest, opts ...grpc.CallOption) (*GetSatellitePositionsResponse, error)
-	GetSatelliteDetail(ctx context.Context, in *Satellite, opts ...grpc.CallOption) (*SatelliteDetail, error)
+	GetSatelliteDetail(ctx context.Context, in *SatelliteDetailRequest, opts ...grpc.CallOption) (*SatelliteDetail, error)
 }
 
 type satelliteServiceClient struct {
@@ -48,7 +48,7 @@ func (c *satelliteServiceClient) GetSatellitePositions(ctx context.Context, in *
 	return out, nil
 }
 
-func (c *satelliteServiceClient) GetSatelliteDetail(ctx context.Context, in *Satellite, opts ...grpc.CallOption) (*SatelliteDetail, error) {
+func (c *satelliteServiceClient) GetSatelliteDetail(ctx context.Context, in *SatelliteDetailRequest, opts ...grpc.CallOption) (*SatelliteDetail, error) {
 	out := new(SatelliteDetail)
 	err := c.cc.Invoke(ctx, SatelliteService_GetSatelliteDetail_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -62,7 +62,7 @@ func (c *satelliteServiceClient) GetSatelliteDetail(ctx context.Context, in *Sat
 // for forward compatibility
 type SatelliteServiceServer interface {
 	GetSatellitePositions(context.Context, *GetSatellitePositionsRequest) (*GetSatellitePositionsResponse, error)
-	GetSatelliteDetail(context.Context, *Satellite) (*SatelliteDetail, error)
+	GetSatelliteDetail(context.Context, *SatelliteDetailRequest) (*SatelliteDetail, error)
 	mustEmbedUnimplementedSatelliteServiceServer()
 }
 
@@ -73,7 +73,7 @@ type UnimplementedSatelliteServiceServer struct {
 func (UnimplementedSatelliteServiceServer) GetSatellitePositions(context.Context, *GetSatellitePositionsRequest) (*GetSatellitePositionsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSatellitePositions not implemented")
 }
-func (UnimplementedSatelliteServiceServer) GetSatelliteDetail(context.Context, *Satellite) (*SatelliteDetail, error) {
+func (UnimplementedSatelliteServiceServer) GetSatelliteDetail(context.Context, *SatelliteDetailRequest) (*SatelliteDetail, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSatelliteDetail not implemented")
 }
 func (UnimplementedSatelliteServiceServer) mustEmbedUnimplementedSatelliteServiceServer() {}
@@ -108,7 +108,7 @@ func _SatelliteService_GetSatellitePositions_Handler(srv interface{}, ctx contex
 }
 
 func _SatelliteService_GetSatelliteDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(Satellite)
+	in := new(SatelliteDetailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func _SatelliteService_GetSatelliteDetail_Handler(srv interface{}, ctx context.C
 		FullMethod: SatelliteService_GetSatelliteDetail_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(SatelliteServiceServer).GetSatelliteDetail(ctx, req.(*Satellite))
+		return srv.(SatelliteServiceServer).GetSatelliteDetail(ctx, req.(*SatelliteDetailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }

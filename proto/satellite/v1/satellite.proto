@@ -13,6 +13,9 @@ message Satellite {
   double velocity = 5;
   string name = 6;
 }
+message SatelliteDetailRequest {
+  string id = 1;
+}
 
 
 message SatelliteDetail {
@@ -75,7 +78,7 @@ service SatelliteService {
     };
   }
 
-  rpc GetSatelliteDetail(Satellite) returns (SatelliteDetail){
+  rpc GetSatelliteDetail(SatelliteDetailRequest) returns (SatelliteDetail){
     option(google.api.http) = {
       get : "/v1/satellite/detail/{id}"
     };
