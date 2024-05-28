@@ -6,6 +6,7 @@ import (
 	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"github.com/joshuaferrara/go-satellite"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -93,6 +94,7 @@ func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.Get
 		}
 	}
 	t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
+	log.Info("Request time: ", t)
 
 	// filter the satellites by the group if provided
 	filteredData := make([]spacetrack.TLE, 0)

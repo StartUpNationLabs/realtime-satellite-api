@@ -4,6 +4,7 @@ import (
 	"context"
 	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/service"
+	"github.com/gorilla/handlers"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
@@ -64,7 +65,7 @@ func main() {
 	mux := http.NewServeMux()
 
 	// mount the gRPC HTTP gateway to the root
-	mux.Handle("/", rmux)
+	mux.Handle("/", handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(rmux))
 
 	// mount a path to expose the generated OpenAPI specification on disk
 	mux.HandleFunc("/swagger-ui/swagger.json", func(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +77,7 @@ func main() {
 	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.Dir("./swagger-ui"))))
 
 	log.Println("HTTP server ready on " + host + ":8080")
-	err = http.ListenAndServe(host+":8080", mux)
+	err = http.ListenAndServe(host+":8080", handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(mux))
 	if err != nil {
 		log.Fatal(err)
 	}
