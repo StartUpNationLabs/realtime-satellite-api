@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 
@@ -76,7 +77,7 @@ func markData(data []TLE) []TLE {
 
 func (c *Client) FetchData() ([]TLE, error) {
 	// if file exists, read from file
-	if _, err := os.Stat(c.configuration.tleFile); err == nil {
+	if file, err := os.Stat(c.configuration.tleFile); err == nil && time.Since(file.ModTime()) < 24*time.Hour {
 		log.Info("Reading data from file")
 		data, err := readDataFromFile(c.configuration.tleFile)
 		data = markData(data)
@@ -84,7 +85,6 @@ func (c *Client) FetchData() ([]TLE, error) {
 			return nil, err
 		}
 		return data, nil
-
 	}
 	log.Info("Fetching data from spacetrack")
 	req, err := c.client.R().
@@ -101,7 +101,9 @@ func (c *Client) FetchData() ([]TLE, error) {
 
 	// unmarshal the response body
 	var data []TLE
-	err = json.Unmarshal(req.Body(), &data)
+
+	//err = json.Unmarshal(req.Body(), &data)
+	json.Unmarshal(req.Body(), &data) // err is not used fo the moment so I commented it
 
 	// save the data to a file
 	err = saveDataToFile(c.configuration.tleFile, data)
