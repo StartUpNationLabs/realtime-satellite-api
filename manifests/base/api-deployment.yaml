@@ -33,9 +33,9 @@ spec:
               memory: "512Mi"
           env:
             - name: CELESTRACK_URL
-              value: http://nginx-cache:9081/NORAD/elements
+              value: https://celestrak.org/NORAD/elements
             - name: SPACETRACK_URL
-              value: http://nginx-cache:9080
+              value: https://www.space-track.org/
             - name: HOST
               value: "0.0.0.0"
             - name: SPACETRACK_USERNAME

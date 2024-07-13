@@ -3,7 +3,4 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 resources:
   - api-deployment.yaml
   - api-service.yaml
-  - nginx-cache-deployment.yaml
-  - nginx-cache-service.yaml
   - api-ingress.yaml
-  - nginx-cache-pvc.yaml
