@@ -5,10 +5,9 @@ import (
 	"fmt"
 	"net/url"
 	"os"
-)
-import "github.com/go-resty/resty/v2"
 
-import (
+	"github.com/go-resty/resty/v2"
+
 	log "github.com/sirupsen/logrus"
 )
 

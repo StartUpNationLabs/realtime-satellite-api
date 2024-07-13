@@ -30,8 +30,9 @@ func NewSatelliteService() *SatelliteService {
 		}
 		// check if the object id is already in the map
 		if _, ok := calculatedMap[tle.NORAD_CAT_ID]; ok {
-			log.Fatalf("NORAD_CAT_ID %v is already in the map", tle.OBJECT_ID)
+			log.Warnf("NORAD_CAT_ID %v is already in the map, latest version taken into account", tle.OBJECT_ID)
 		}
+
 		calculatedMap[tle.NORAD_CAT_ID] = tle
 
 	}
