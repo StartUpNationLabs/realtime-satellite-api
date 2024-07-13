@@ -6,6 +6,7 @@ import (
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/maps"
+	"sort"
 )
 
 func NewSatelliteService() *SatelliteService {
@@ -62,10 +63,17 @@ func NewSatelliteService() *SatelliteService {
 		calculatedMap[k] = v
 
 	}
+	// convert map into a sorted array
+	dataArray := maps.Values(calculatedMap)
+	// sort the array
+	sort.Slice(dataArray, func(i, j int) bool {
+		return dataArray[i].NORAD_CAT_ID < dataArray[j].NORAD_CAT_ID
+	})
+
 	log.Info("Total satellites: ", len(calculatedMap))
 	return &SatelliteService{
 		data:      calculatedMap,
-		dataArray: maps.Values(calculatedMap),
+		dataArray: dataArray,
 	}
 }
 
