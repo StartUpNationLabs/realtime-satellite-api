@@ -6,6 +6,7 @@ import (
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/maps"
+	"slices"
 	"sort"
 )
 
@@ -70,10 +71,25 @@ func NewSatelliteService() *SatelliteService {
 		return dataArray[i].NORAD_CAT_ID < dataArray[j].NORAD_CAT_ID
 	})
 
+	// store the unique groups in an array
+	groups := make([]string, 0)
+	for _, v := range dataArray {
+		for _, group := range v.Group {
+			if !slices.Contains(groups, group) {
+				groups = append(groups, group)
+			}
+		}
+	}
+	// sort the groups
+	sort.Strings(groups)
+
+	log.Info("Total groups: ", len(groups))
+
 	log.Info("Total satellites: ", len(calculatedMap))
 	return &SatelliteService{
 		data:      calculatedMap,
 		dataArray: dataArray,
+		groups:    groups,
 	}
 }
 

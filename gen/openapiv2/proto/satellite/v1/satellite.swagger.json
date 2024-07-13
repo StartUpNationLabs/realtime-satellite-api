@@ -46,6 +46,28 @@
         ]
       }
     },
+    "/v1/satellite/groups": {
+      "get": {
+        "operationId": "SatelliteService_GetSatelliteGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSatelliteGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
     "/v1/satellite/positions": {
       "get": {
         "operationId": "SatelliteService_GetSatellitePositions",
@@ -113,6 +135,17 @@
           "items": {
             "type": "object",
             "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1GetSatelliteGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
           }
         }
       }

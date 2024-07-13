@@ -3,6 +3,7 @@ package satellite.v1;
 option  go_package = "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/v1";
 
 import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 message Satellite {
@@ -71,6 +72,10 @@ message GetSatellitePositionsResponse {
   repeated Satellite satellites = 1;
 }
 
+message GetSatelliteGroupsResponse {
+  repeated string groups = 1;
+}
+
 service SatelliteService {
   rpc GetSatellitePositions(GetSatellitePositionsRequest) returns (GetSatellitePositionsResponse){
     option(google.api.http) = {
@@ -81,6 +86,12 @@ service SatelliteService {
   rpc GetSatelliteDetail(SatelliteDetailRequest) returns (SatelliteDetail){
     option(google.api.http) = {
       get : "/v1/satellite/detail/{id}"
+    };
+  }
+
+  rpc GetSatelliteGroups(google.protobuf.Empty) returns (GetSatelliteGroupsResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/groups"
     };
   }
 }

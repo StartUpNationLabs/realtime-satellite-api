@@ -10,6 +10,7 @@ import (
 	"golang.org/x/exp/slices"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 	"runtime"
@@ -20,6 +21,7 @@ type SatelliteService struct {
 	*v1.UnimplementedSatelliteServiceServer
 	data      map[string]spacetrack.TLE
 	dataArray []spacetrack.TLE
+	groups    []string
 }
 
 func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.SatelliteDetailRequest) (*v1.SatelliteDetail, error) {
@@ -213,4 +215,10 @@ func CalculateSatPositionsLoop(t time.Time, data *[]spacetrack.TLE) []*v1.Satell
 	time2 := time.Now()
 	fmt.Println("Time to calculate positions Loop: ", time2.Sub(time1))
 	return calculatedPositions
+}
+
+func (api SatelliteService) GetSatelliteGroups(context.Context, *emptypb.Empty) (*v1.GetSatelliteGroupsResponse, error) {
+	return &v1.GetSatelliteGroupsResponse{
+		Groups: api.groups,
+	}, nil
 }
