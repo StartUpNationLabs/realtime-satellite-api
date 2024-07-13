@@ -18,8 +18,8 @@ import (
 
 type SatelliteService struct {
 	*v1.UnimplementedSatelliteServiceServer
-	data       map[string]spacetrack.TLE
-	data_array []spacetrack.TLE
+	data      map[string]spacetrack.TLE
+	dataArray []spacetrack.TLE
 }
 
 func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.SatelliteDetailRequest) (*v1.SatelliteDetail, error) {
@@ -99,17 +99,17 @@ func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.Get
 	// filter the satellites by the group if provided
 	filteredData := make([]spacetrack.TLE, 0)
 	if len(req.Groups) > 0 {
-		for _, sat := range api.data_array {
+		for _, sat := range api.dataArray {
 			if compareGroups(req.Groups, sat.Group) {
 				filteredData = append(filteredData, sat)
 			}
 		}
 	} else {
-		filteredData = api.data_array
+		filteredData = api.dataArray
 	}
 
 	return &v1.GetSatellitePositionsResponse{
-		Satellites: CalculateSatPositionsParrallel(t, &filteredData),
+		Satellites: CalculateSatPositionsParallel(t, &api.dataArray),
 	}, nil
 }
 
@@ -151,7 +151,12 @@ func Chunkify(sats *[]spacetrack.TLE, numberOfChunks int) [][]spacetrack.TLE {
 	return chunks
 }
 
-func CalculateSatPositionsParrallel(t time.Time, data *[]spacetrack.TLE) []*v1.Satellite {
+type ChunkResult struct {
+	Index int
+	Data  []*v1.Satellite
+}
+
+func CalculateSatPositionsParallel(t time.Time, data *[]spacetrack.TLE) []*v1.Satellite {
 	// chunkify the data
 	time1 := time.Now()
 	// chunk to the number of CPUs
@@ -160,30 +165,35 @@ func CalculateSatPositionsParrallel(t time.Time, data *[]spacetrack.TLE) []*v1.S
 	fmt.Println("Time to chunkify: ", time2.Sub(time1))
 
 	// make the channels
-	ch := make(chan []*v1.Satellite)
-	for _, chunk := range chunks {
-		go func(chunk []spacetrack.TLE) {
-			ch <- CalculateChunk(t, &chunk)
-		}(chunk)
+	ch := make(chan ChunkResult)
+	for i, chunk := range chunks {
+		go func(index int, chunk []spacetrack.TLE) {
+			ch <- ChunkResult{Index: index, Data: CalculateChunk(t, &chunk)}
+		}(i, chunk)
 	}
 	time3 := time.Now()
 
-	calculatedPositions := make([]*v1.Satellite, 0)
+	results := make([][]*v1.Satellite, len(chunks))
 	for range chunks {
-		calculatedPositions = append(calculatedPositions, <-ch...)
-
+		result := <-ch
+		results[result.Index] = result.Data
 	}
+
+	calculatedPositions := make([]*v1.Satellite, 0)
+	for _, result := range results {
+		calculatedPositions = append(calculatedPositions, result...)
+	}
+
 	time4 := time.Now()
 	fmt.Println("Time to calculate chunks: ", time4.Sub(time3))
 	fmt.Println("Total time Parrael: ", time4.Sub(time1))
 	return calculatedPositions
-
 }
 
-func CalculateSatPositionsLoop(t time.Time, data map[string]spacetrack.TLE) []*v1.Satellite {
+func CalculateSatPositionsLoop(t time.Time, data *[]spacetrack.TLE) []*v1.Satellite {
 	time1 := time.Now()
 	calculatedPositions := make([]*v1.Satellite, 0)
-	for _, data := range data {
+	for _, data := range *data {
 		// propagate the satellite position
 
 		pos, _ := satellite.Propagate(data.Sat, t.Year(), int(t.Month()), t.Day(), t.Hour(), t.Minute(), t.Second())

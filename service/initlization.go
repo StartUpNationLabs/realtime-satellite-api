@@ -63,8 +63,8 @@ func NewSatelliteService() *SatelliteService {
 	}
 	log.Info("Total satellites: ", len(calculatedMap))
 	return &SatelliteService{
-		data:       calculatedMap,
-		data_array: maps.Values(calculatedMap),
+		data:      calculatedMap,
+		dataArray: maps.Values(calculatedMap),
 	}
 }
 
