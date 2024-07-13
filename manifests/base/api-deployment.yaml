@@ -38,4 +38,14 @@ spec:
               value: http://nginx-cache:9080
             - name: HOST
               value: "0.0.0.0"
+            - name: SPACETRACK_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  key: username
+                  name: spacetrack-crendentials
+            - name: SPACETRACK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: password
+                  name: spacetrack-crendentials
       restartPolicy: Always
