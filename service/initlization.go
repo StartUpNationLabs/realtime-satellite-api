@@ -45,16 +45,18 @@ func NewSatelliteService() *SatelliteService {
 	if err != nil {
 		log.Error(err)
 	}
+	addedSatellites := 0
 	for k, v := range celestrakData {
 		sat, ok := calculatedMap[k]
 		if !ok {
 			calculatedMap[k] = v
-			log.Info("Added ", k)
+			addedSatellites++
 			continue
 		}
 		sat.Group = append(sat.Group, v.Group...)
 		calculatedMap[k] = sat
 	}
+	log.Info("Added satellites from celestrak: ", addedSatellites)
 
 	log.Info("Initializing satellites for spg4")
 	// initialize the satellites
