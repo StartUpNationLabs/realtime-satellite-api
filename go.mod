@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/NYTimes/gziphandler v1.1.1
 	github.com/go-resty/resty/v2 v2.13.1
 	github.com/gorilla/handlers v1.5.2
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.20.0

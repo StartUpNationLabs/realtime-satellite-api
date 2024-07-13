@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/NYTimes/gziphandler"
 	v1 "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/proto/satellite/v1"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/service"
 	"github.com/gorilla/handlers"
@@ -64,8 +65,10 @@ func main() {
 	// create a standard HTTP router
 	mux := http.NewServeMux()
 
+	withGzip, _ := gziphandler.GzipHandlerWithOpts(gziphandler.CompressionLevel(9))
+
 	// mount the gRPC HTTP gateway to the root
-	mux.Handle("/", handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(rmux))
+	mux.Handle("/", handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(withGzip(rmux)))
 
 	// mount a path to expose the generated OpenAPI specification on disk
 	mux.HandleFunc("/swagger-ui/swagger.json", func(w http.ResponseWriter, r *http.Request) {
