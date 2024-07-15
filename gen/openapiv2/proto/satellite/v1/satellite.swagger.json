@@ -68,6 +68,47 @@
         ]
       }
     },
+    "/v1/satellite/minimal": {
+      "get": {
+        "operationId": "SatelliteService_GetMinimalSatellites",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMinimalSatellitesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "groups",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
     "/v1/satellite/positions": {
       "get": {
         "operationId": "SatelliteService_GetSatellitePositions",
@@ -139,6 +180,18 @@
         }
       }
     },
+    "v1GetMinimalSatellitesResponse": {
+      "type": "object",
+      "properties": {
+        "satellites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MinimalSatellite"
+          }
+        }
+      }
+    },
     "v1GetSatelliteGroupsResponse": {
       "type": "object",
       "properties": {
@@ -159,6 +212,17 @@
             "type": "object",
             "$ref": "#/definitions/v1Satellite"
           }
+        }
+      }
+    },
+    "v1MinimalSatellite": {
+      "type": "object",
+      "properties": {
+        "noradCatId": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string"
         }
       }
     },

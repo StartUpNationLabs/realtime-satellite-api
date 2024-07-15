@@ -63,6 +63,15 @@ message SatelliteDetail {
   repeated string groups = 41;
 }
 
+message MinimalSatellite {
+  string norad_cat_id = 1;
+  string object_name = 2;
+}
+
+message GetMinimalSatellitesResponse {
+  repeated MinimalSatellite satellites = 1;
+}
+
 message GetSatellitePositionsRequest {
   google.protobuf.Timestamp time = 1;
   repeated string groups = 2;
@@ -92,6 +101,12 @@ service SatelliteService {
   rpc GetSatelliteGroups(google.protobuf.Empty) returns (GetSatelliteGroupsResponse){
     option(google.api.http) = {
       get : "/v1/satellite/groups"
+    };
+  }
+
+  rpc GetMinimalSatellites(GetSatellitePositionsRequest) returns (GetMinimalSatellitesResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/minimal"
     };
   }
 }

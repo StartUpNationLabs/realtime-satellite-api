@@ -23,6 +23,7 @@ const (
 	SatelliteService_GetSatellitePositions_FullMethodName = "/satellite.v1.SatelliteService/GetSatellitePositions"
 	SatelliteService_GetSatelliteDetail_FullMethodName    = "/satellite.v1.SatelliteService/GetSatelliteDetail"
 	SatelliteService_GetSatelliteGroups_FullMethodName    = "/satellite.v1.SatelliteService/GetSatelliteGroups"
+	SatelliteService_GetMinimalSatellites_FullMethodName  = "/satellite.v1.SatelliteService/GetMinimalSatellites"
 )
 
 // SatelliteServiceClient is the client API for SatelliteService service.
@@ -32,6 +33,7 @@ type SatelliteServiceClient interface {
 	GetSatellitePositions(ctx context.Context, in *GetSatellitePositionsRequest, opts ...grpc.CallOption) (*GetSatellitePositionsResponse, error)
 	GetSatelliteDetail(ctx context.Context, in *SatelliteDetailRequest, opts ...grpc.CallOption) (*SatelliteDetail, error)
 	GetSatelliteGroups(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetSatelliteGroupsResponse, error)
+	GetMinimalSatellites(ctx context.Context, in *GetSatellitePositionsRequest, opts ...grpc.CallOption) (*GetMinimalSatellitesResponse, error)
 }
 
 type satelliteServiceClient struct {
@@ -72,6 +74,16 @@ func (c *satelliteServiceClient) GetSatelliteGroups(ctx context.Context, in *emp
 	return out, nil
 }
 
+func (c *satelliteServiceClient) GetMinimalSatellites(ctx context.Context, in *GetSatellitePositionsRequest, opts ...grpc.CallOption) (*GetMinimalSatellitesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMinimalSatellitesResponse)
+	err := c.cc.Invoke(ctx, SatelliteService_GetMinimalSatellites_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // SatelliteServiceServer is the server API for SatelliteService service.
 // All implementations must embed UnimplementedSatelliteServiceServer
 // for forward compatibility
@@ -79,6 +91,7 @@ type SatelliteServiceServer interface {
 	GetSatellitePositions(context.Context, *GetSatellitePositionsRequest) (*GetSatellitePositionsResponse, error)
 	GetSatelliteDetail(context.Context, *SatelliteDetailRequest) (*SatelliteDetail, error)
 	GetSatelliteGroups(context.Context, *emptypb.Empty) (*GetSatelliteGroupsResponse, error)
+	GetMinimalSatellites(context.Context, *GetSatellitePositionsRequest) (*GetMinimalSatellitesResponse, error)
 	mustEmbedUnimplementedSatelliteServiceServer()
 }
 
@@ -94,6 +107,9 @@ func (UnimplementedSatelliteServiceServer) GetSatelliteDetail(context.Context, *
 }
 func (UnimplementedSatelliteServiceServer) GetSatelliteGroups(context.Context, *emptypb.Empty) (*GetSatelliteGroupsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetSatelliteGroups not implemented")
+}
+func (UnimplementedSatelliteServiceServer) GetMinimalSatellites(context.Context, *GetSatellitePositionsRequest) (*GetMinimalSatellitesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMinimalSatellites not implemented")
 }
 func (UnimplementedSatelliteServiceServer) mustEmbedUnimplementedSatelliteServiceServer() {}
 
@@ -162,6 +178,24 @@ func _SatelliteService_GetSatelliteGroups_Handler(srv interface{}, ctx context.C
 	return interceptor(ctx, in, info, handler)
 }
 
+func _SatelliteService_GetMinimalSatellites_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetSatellitePositionsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(SatelliteServiceServer).GetMinimalSatellites(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: SatelliteService_GetMinimalSatellites_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(SatelliteServiceServer).GetMinimalSatellites(ctx, req.(*GetSatellitePositionsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // SatelliteService_ServiceDesc is the grpc.ServiceDesc for SatelliteService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -180,6 +214,10 @@ var SatelliteService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetSatelliteGroups",
 			Handler:    _SatelliteService_GetSatelliteGroups_Handler,
+		},
+		{
+			MethodName: "GetMinimalSatellites",
+			Handler:    _SatelliteService_GetMinimalSatellites_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
