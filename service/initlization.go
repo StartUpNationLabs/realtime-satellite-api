@@ -22,7 +22,7 @@ func NewSatelliteService() *SatelliteService {
 	}
 	data, err := spacetrackClient.FetchData()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 
 	calculatedMap := make(map[string]spacetrack.TLE)
@@ -43,7 +43,7 @@ func NewSatelliteService() *SatelliteService {
 	celestrackClient := celestrack.New()
 	celestrakData, err := celestrackClient.Scrap()
 	if err != nil {
-		log.Error(err)
+		log.Fatal(err)
 	}
 	addedSatellites := 0
 	for k, v := range celestrakData {
