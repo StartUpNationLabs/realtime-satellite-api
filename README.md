@@ -122,7 +122,14 @@ To get a local copy up and running, follow these simple steps.
 
 ## Usage
 
-Use this space to show useful examples of how this API can be used. Here are some example endpoints and responses:
+### Environment Variables
+
+To run the application, you need to set the following environment variables:
+  - `CELESTRACK_URL`: The URL to the Celestrak API.
+  - `SPACETRACK_URL`: The URL to the Space-Track API.
+  - `SPACETRACK_USERNAME`: The username for the Space-Track API.
+  - `SPACETRACK_PASSWORD`: The password for the Space-Track API.
+  - 'HOST': The host for the server(0.0.0.0 if in docker)
 
 ### Get Satellite Detail
 
