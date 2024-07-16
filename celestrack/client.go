@@ -51,16 +51,16 @@ func (c *Client) Scrap() (map[string]spacetrack.TLE, error) {
 	data := make(map[string]spacetrack.TLE)
 	for _, match := range matches {
 		group := match[1]
-		log.Info("Fetching Group: ", group)
+		url := c.conf.baseUrl + "/gp.php?GROUP=" + group + "&FORMAT=tle"
+		log.Info("Fetching Group: ", group, " from ", url)
 
 		// Get the TLE file
-		resp, err := c.client.R().Get(c.conf.baseUrl + "/gp.php?GROUP=" + group + "&FORMAT=tle")
+		resp, err := c.client.R().Get(url)
 		if err != nil {
 			return nil, err
 		}
 		lines := strings.Split(resp.String(), "\n")
 		for i := 0; i < len(lines); i += 3 {
-
 			norad := extractNoradIdFromTle(lines[i+2])
 			tle, ok := data[norad]
 			if !ok {

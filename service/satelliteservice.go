@@ -10,6 +10,7 @@ import (
 	"google.golang.org/protobuf/types/known/emptypb"
 	_ "google.golang.org/protobuf/types/known/emptypb"
 	"google.golang.org/protobuf/types/known/timestamppb"
+	"strconv"
 	"time"
 )
 
@@ -82,15 +83,7 @@ func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.Get
 }
 
 func (api SatelliteService) parseGetSatelliteParams(req *v1.GetSatellitePositionsRequest) (time.Time, []spacetrack.TLE) {
-	reqTime := req.GetTime()
-	if reqTime == nil {
-		reqTime = &timestamppb.Timestamp{
-			Seconds: time.Now().Unix(),
-			Nanos:   0,
-		}
-	}
-	t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
-	log.Info("Request time: ", t)
+	t := api.parseTime(req.Time)
 
 	// filter the satellites by the group if provided
 	filteredData := make([]spacetrack.TLE, 0)
@@ -104,6 +97,18 @@ func (api SatelliteService) parseGetSatelliteParams(req *v1.GetSatellitePosition
 		filteredData = api.dataArray
 	}
 	return t, filteredData
+}
+
+func (api SatelliteService) parseTime(reqTime *timestamppb.Timestamp) time.Time {
+	if reqTime == nil {
+		reqTime = &timestamppb.Timestamp{
+			Seconds: time.Now().Unix(),
+			Nanos:   0,
+		}
+	}
+	t := time.Unix(reqTime.Seconds, int64(reqTime.Nanos))
+	log.Info("Request time: ", t)
+	return t
 }
 
 func (api SatelliteService) GetSatelliteGroups(context.Context, *emptypb.Empty) (*v1.GetSatelliteGroupsResponse, error) {
@@ -127,4 +132,50 @@ func (api SatelliteService) GetMinimalSatellites(_ context.Context, req *v1.GetS
 	return &v1.GetMinimalSatellitesResponse{
 		Satellites: minimalData,
 	}, nil
+}
+
+func (api SatelliteService) GetSatellitePath(_ context.Context, req *v1.SatellitePathRequest) (*v1.GetSatellitePathResponse, error) {
+	// meanMotion is the revolution per day of the satellite
+	meanMotion, err := strconv.ParseFloat(api.data[req.Id].MEAN_MOTION, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Error parsing mean motion: %s", err)
+	}
+
+	// period is the time it takes for the satellite to complete one orbit
+	period := (1.0 / meanMotion) * 24 * 60 * 60
+
+	// get the current time
+	t := api.parseTime(req.GetTime())
+	startTime := t.Add(-time.Duration(period/2) * time.Second)
+	endTime := t.Add(time.Duration(period/2) * time.Second)
+
+	// calculate the positions of the satellite
+	positions := make([]*v1.GeoPoint, 0)
+
+	resolution := req.Resolution
+	log.Info("Resolution: ", resolution)
+	if resolution == 0 {
+		resolution = 60
+	}
+
+	step := (period / float64(resolution)) * 1000
+	total := 0
+	for i := startTime.UnixMilli(); i < endTime.UnixMilli(); i += int64(step) {
+		total++
+		t := time.UnixMilli(i)
+		tle := api.data[req.Id]
+		calculatedSat := CalculateSatPosition(t, &tle)
+		positions = append(positions, &v1.GeoPoint{
+			Lat:      calculatedSat.Lat,
+			Lon:      calculatedSat.Lon,
+			Altitude: calculatedSat.Altitude,
+			Velocity: calculatedSat.Velocity,
+		})
+	}
+	log.Info("Total positions: ", total)
+
+	return &v1.GetSatellitePathResponse{
+		Path: positions,
+	}, nil
+
 }

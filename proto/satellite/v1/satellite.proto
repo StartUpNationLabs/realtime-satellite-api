@@ -85,6 +85,23 @@ message GetSatelliteGroupsResponse {
   repeated string groups = 1;
 }
 
+message SatellitePathRequest {
+  string id = 1;
+  google.protobuf.Timestamp time = 2;
+  int32 resolution = 3;
+}
+
+message GeoPoint {
+  double lat = 1;
+  double lon = 2;
+  double altitude = 3;
+  double velocity = 4;
+}
+
+message GetSatellitePathResponse {
+  repeated GeoPoint path = 1;
+}
+
 service SatelliteService {
   rpc GetSatellitePositions(GetSatellitePositionsRequest) returns (GetSatellitePositionsResponse){
     option(google.api.http) = {
@@ -107,6 +124,12 @@ service SatelliteService {
   rpc GetMinimalSatellites(GetSatellitePositionsRequest) returns (GetMinimalSatellitesResponse){
     option(google.api.http) = {
       get : "/v1/satellite/minimal"
+    };
+  }
+
+  rpc GetSatellitePath(SatellitePathRequest) returns (GetSatellitePathResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/path/{id}"
     };
   }
 }

@@ -109,6 +109,50 @@
         ]
       }
     },
+    "/v1/satellite/path/{id}": {
+      "get": {
+        "operationId": "SatelliteService_GetSatellitePath",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSatellitePathResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "resolution",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
     "/v1/satellite/positions": {
       "get": {
         "operationId": "SatelliteService_GetSatellitePositions",
@@ -180,6 +224,27 @@
         }
       }
     },
+    "v1GeoPoint": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "lon": {
+          "type": "number",
+          "format": "double"
+        },
+        "altitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "velocity": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
     "v1GetMinimalSatellitesResponse": {
       "type": "object",
       "properties": {
@@ -199,6 +264,18 @@
           "type": "array",
           "items": {
             "type": "string"
+          }
+        }
+      }
+    },
+    "v1GetSatellitePathResponse": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GeoPoint"
           }
         }
       }
