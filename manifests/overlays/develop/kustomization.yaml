@@ -6,10 +6,10 @@ resources:
 images:
   - name: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
     newName: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
-    newTag: 239519c70c75ec5c0c2424c1119610521533667c
+    newTag: 1d22dc6f9906484d5b82229fcd92a3cfd62c88f6
   - name: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
     newName: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
-    newTag: 239519c70c75ec5c0c2424c1119610521533667c
+    newTag: 1d22dc6f9906484d5b82229fcd92a3cfd62c88f6
 
 
 patches:
