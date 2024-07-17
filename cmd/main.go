@@ -13,8 +13,18 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"net"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 )
+
+func startDebug() {
+	log.Println("Starting pprof server on " + ":10001")
+	err := http.ListenAndServe(":10001", nil)
+	if err != nil {
+		log.Fatal("failed to start pprof server: ", err)
+	}
+
+}
 
 func main() {
 	ctx := context.Background()
@@ -22,7 +32,9 @@ func main() {
 	if err != nil {
 		log.Warnf("Error loading .env file")
 	}
-
+	if os.Getenv("DEBUG") == "true" {
+		go startDebug()
+	}
 	host := "localhost"
 	if os.Getenv("HOST") != "" {
 		host = os.Getenv("HOST")
