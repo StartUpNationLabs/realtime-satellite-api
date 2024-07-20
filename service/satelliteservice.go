@@ -146,8 +146,8 @@ func (api SatelliteService) GetSatellitePath(_ context.Context, req *v1.Satellit
 
 	// get the current time
 	t := api.parseTime(req.GetTime())
-	startTime := t.Add(-time.Duration(period/2) * time.Second)
-	endTime := t.Add(time.Duration(period/2) * time.Second)
+	startTime := t.Add(-time.Duration(period) * time.Second)
+	endTime := t.Add(time.Duration(period) * time.Second)
 
 	// calculate the positions of the satellite
 	positions := make([]*v1.GeoPoint, 0)
@@ -158,11 +158,11 @@ func (api SatelliteService) GetSatellitePath(_ context.Context, req *v1.Satellit
 		resolution = 60
 	}
 
-	step := (period / float64(resolution)) * 1000
+	step := period / float64(resolution)
 	total := 0
-	for i := startTime.UnixMilli(); i < endTime.UnixMilli(); i += int64(step) {
+	for i := startTime.Unix(); i < endTime.Unix(); i += int64(step) {
 		total++
-		t := time.UnixMilli(i)
+		t := time.Unix(i, 0)
 		tle := api.data[req.Id]
 		calculatedSat := CalculateSatPosition(t, &tle)
 		positions = append(positions, &v1.GeoPoint{
