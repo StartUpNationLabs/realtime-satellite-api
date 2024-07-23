@@ -24,6 +24,9 @@ spec:
             - containerPort: 8080
               hostPort: 8080
               protocol: TCP
+            - containerPort: 10002
+              hostPort: 10002
+              protocol: TCP
           resources:
             requests:
               cpu: "100m"
