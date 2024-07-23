@@ -48,4 +48,16 @@ spec:
                 secretKeyRef:
                   key: password
                   name: spacetrack-crendentials
+          livenessProbe:
+            httpGet:
+              path: /livez
+              port: 10002
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 10002
+            initialDelaySeconds: 5
+            periodSeconds: 20
       restartPolicy: Always

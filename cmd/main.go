@@ -26,6 +26,41 @@ func startDebug() {
 
 }
 
+var isReady = false
+
+func monitoring(host string) {
+	log.Println("Starting monitoring server on " + ":10002")
+	mux := http.NewServeMux()
+	mux.HandleFunc("/livez", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, err := w.Write([]byte("OK"))
+		if err != nil {
+			log.Error("Error writing response livez: ", err)
+		}
+	})
+	mux.HandleFunc("/readyz", func(w http.ResponseWriter, r *http.Request) {
+		if isReady {
+			w.WriteHeader(http.StatusOK)
+			_, err := w.Write([]byte("OK"))
+			if err != nil {
+				log.Error("Error writing response readyz: ", err)
+			}
+		} else {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			_, err := w.Write([]byte("Not ready"))
+			if err != nil {
+				log.Error("Error writing response readyz: ", err)
+			}
+		}
+
+	})
+	err := http.ListenAndServe(host+":10002", mux)
+
+	if err != nil {
+		log.Fatal("failed to start monitoring server: ", err)
+	}
+}
+
 func main() {
 	ctx := context.Background()
 	err := godotenv.Load()
@@ -39,6 +74,8 @@ func main() {
 	if os.Getenv("HOST") != "" {
 		host = os.Getenv("HOST")
 	}
+	// start monitoring server
+	go monitoring(host)
 
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -63,7 +100,13 @@ func main() {
 	if err != nil {
 		log.Fatalf("fail to dial: %v", err)
 	}
-	defer conn.Close()
+	defer func(conn *grpc.ClientConn) {
+		err := conn.Close()
+		if err != nil {
+			log.Error(err)
+
+		}
+	}(conn)
 
 	// create an HTTP router using the client connection above
 	// and register it with the service client
@@ -92,6 +135,7 @@ func main() {
 	mux.Handle("/swagger-ui/", http.StripPrefix("/swagger-ui/", http.FileServer(http.Dir("./swagger-ui"))))
 
 	log.Println("HTTP server ready on " + host + ":8080")
+	isReady = true
 	err = http.ListenAndServe(host+":8080", handlers.CORS(handlers.AllowedOrigins([]string{"*"}))(mux))
 	if err != nil {
 		log.Fatal(err)
