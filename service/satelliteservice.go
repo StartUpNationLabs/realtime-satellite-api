@@ -77,9 +77,17 @@ func (api SatelliteService) GetSatelliteDetail(ctx context.Context, req *v1.Sate
 func (api SatelliteService) GetSatellitePositions(_ context.Context, req *v1.GetSatellitePositionsRequest) (*v1.GetSatellitePositionsResponse, error) {
 	t, filteredData := api.parseGetSatelliteParams(req)
 
-	return &v1.GetSatellitePositionsResponse{
-		Satellites: CalculateSatPositionsParallel(t, &filteredData),
-	}, nil
+	// if the number of satellites is less than 1000, calculate the positions in serial
+	if len(filteredData) < 1000 {
+		return &v1.GetSatellitePositionsResponse{
+			Satellites: CalculateSatPositionsLoop(t, &filteredData),
+		}, nil
+	} else {
+		// if the number of satellites is more than 1000, calculate the positions in parallel
+		return &v1.GetSatellitePositionsResponse{
+			Satellites: CalculateSatPositionsParallel(t, &filteredData),
+		}, nil
+	}
 }
 
 func (api SatelliteService) parseGetSatelliteParams(req *v1.GetSatellitePositionsRequest) (time.Time, []spacetrack.TLE) {
