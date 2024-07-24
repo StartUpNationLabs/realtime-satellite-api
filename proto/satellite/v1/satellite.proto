@@ -1,0 +1,135 @@
+syntax = "proto3";
+package satellite.v1;
+option  go_package = "github.com/StartUpNationLabs/react-flight-tracker-satellite/gen/go/v1";
+
+import "google/api/annotations.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message Satellite {
+  string id = 1;
+  double lat = 2;
+  double lon = 3;
+  double altitude = 4;
+  double velocity = 5;
+  string name = 6;
+}
+message SatelliteDetailRequest {
+  string id = 1;
+}
+
+
+message SatelliteDetail {
+  string ccsds_omm_vers = 1;
+  string comment = 2;
+  string creation_date = 3;
+  string originator = 4;
+  string object_name = 5;
+  string object_id = 6;
+  string center_name = 7;
+  string ref_frame = 8;
+  string time_system = 9;
+  string mean_element_theory = 10;
+  string epoch = 11;
+  string mean_motion = 12;
+  string eccentricity = 13;
+  string inclination = 14;
+  string ra_of_asc_node = 15;
+  string arg_of_pericenter = 16;
+  string mean_anomaly = 17;
+  string ephemeris_type = 18;
+  string classification_type = 19;
+  string norad_cat_id = 20;
+  string element_set_no = 21;
+  string rev_at_epoch = 22;
+  string bstar = 23;
+  string mean_motion_dot = 24;
+  string mean_motion_ddot = 25;
+  string semimajor_axis = 26;
+  string period = 27;
+  string apoapsis = 28;
+  string periapsis = 29;
+  string object_type = 30;
+  string rcs_size = 31;
+  string country_code = 32;
+  string launch_date = 33;
+  string site = 34;
+  string decay_date = 35;
+  string file = 36;
+  string gp_id = 37;
+  string tle_line0 = 38;
+  string tle_line1 = 39;
+  string tle_line2 = 40;
+  repeated string groups = 41;
+}
+
+message MinimalSatellite {
+  string norad_cat_id = 1;
+  string object_name = 2;
+}
+
+message GetMinimalSatellitesResponse {
+  repeated MinimalSatellite satellites = 1;
+}
+
+message GetSatellitePositionsRequest {
+  google.protobuf.Timestamp time = 1;
+  repeated string groups = 2;
+}
+
+message GetSatellitePositionsResponse {
+  repeated Satellite satellites = 1;
+}
+
+message GetSatelliteGroupsResponse {
+  repeated string groups = 1;
+}
+
+message SatellitePathRequest {
+  string id = 1;
+  google.protobuf.Timestamp time = 2;
+  int32 resolution = 3;
+}
+
+message GeoPoint {
+  double lat = 1;
+  double lon = 2;
+  double altitude = 3;
+  double velocity = 4;
+}
+
+message GetSatellitePathResponse {
+  repeated GeoPoint path = 1;
+}
+
+service SatelliteService {
+  rpc GetSatellitePositions(GetSatellitePositionsRequest) returns (GetSatellitePositionsResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/positions"
+    };
+  }
+
+  rpc GetSatelliteDetail(SatelliteDetailRequest) returns (SatelliteDetail){
+    option(google.api.http) = {
+      get : "/v1/satellite/detail/{id}"
+    };
+  }
+
+  rpc GetSatelliteGroups(google.protobuf.Empty) returns (GetSatelliteGroupsResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/groups"
+    };
+  }
+
+  rpc GetMinimalSatellites(GetSatellitePositionsRequest) returns (GetMinimalSatellitesResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/minimal"
+    };
+  }
+
+  rpc GetSatellitePath(SatellitePathRequest) returns (GetSatellitePathResponse){
+    option(google.api.http) = {
+      get : "/v1/satellite/path/{id}"
+    };
+  }
+}

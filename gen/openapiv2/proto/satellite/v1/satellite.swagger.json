@@ -1,0 +1,465 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "proto/satellite/v1/satellite.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "SatelliteService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/satellite/detail/{id}": {
+      "get": {
+        "operationId": "SatelliteService_GetSatelliteDetail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1SatelliteDetail"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
+    "/v1/satellite/groups": {
+      "get": {
+        "operationId": "SatelliteService_GetSatelliteGroups",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSatelliteGroupsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
+    "/v1/satellite/minimal": {
+      "get": {
+        "operationId": "SatelliteService_GetMinimalSatellites",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetMinimalSatellitesResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "groups",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
+    "/v1/satellite/path/{id}": {
+      "get": {
+        "operationId": "SatelliteService_GetSatellitePath",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSatellitePathResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "resolution",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    },
+    "/v1/satellite/positions": {
+      "get": {
+        "operationId": "SatelliteService_GetSatellitePositions",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetSatellitePositionsResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "time",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "date-time"
+          },
+          {
+            "name": "groups",
+            "in": "query",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "tags": [
+          "SatelliteService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    },
+    "v1GeoPoint": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "lon": {
+          "type": "number",
+          "format": "double"
+        },
+        "altitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "velocity": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1GetMinimalSatellitesResponse": {
+      "type": "object",
+      "properties": {
+        "satellites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1MinimalSatellite"
+          }
+        }
+      }
+    },
+    "v1GetSatelliteGroupsResponse": {
+      "type": "object",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "v1GetSatellitePathResponse": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1GeoPoint"
+          }
+        }
+      }
+    },
+    "v1GetSatellitePositionsResponse": {
+      "type": "object",
+      "properties": {
+        "satellites": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/v1Satellite"
+          }
+        }
+      }
+    },
+    "v1MinimalSatellite": {
+      "type": "object",
+      "properties": {
+        "noradCatId": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string"
+        }
+      }
+    },
+    "v1Satellite": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "lat": {
+          "type": "number",
+          "format": "double"
+        },
+        "lon": {
+          "type": "number",
+          "format": "double"
+        },
+        "altitude": {
+          "type": "number",
+          "format": "double"
+        },
+        "velocity": {
+          "type": "number",
+          "format": "double"
+        },
+        "name": {
+          "type": "string"
+        }
+      }
+    },
+    "v1SatelliteDetail": {
+      "type": "object",
+      "properties": {
+        "ccsdsOmmVers": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "creationDate": {
+          "type": "string"
+        },
+        "originator": {
+          "type": "string"
+        },
+        "objectName": {
+          "type": "string"
+        },
+        "objectId": {
+          "type": "string"
+        },
+        "centerName": {
+          "type": "string"
+        },
+        "refFrame": {
+          "type": "string"
+        },
+        "timeSystem": {
+          "type": "string"
+        },
+        "meanElementTheory": {
+          "type": "string"
+        },
+        "epoch": {
+          "type": "string"
+        },
+        "meanMotion": {
+          "type": "string"
+        },
+        "eccentricity": {
+          "type": "string"
+        },
+        "inclination": {
+          "type": "string"
+        },
+        "raOfAscNode": {
+          "type": "string"
+        },
+        "argOfPericenter": {
+          "type": "string"
+        },
+        "meanAnomaly": {
+          "type": "string"
+        },
+        "ephemerisType": {
+          "type": "string"
+        },
+        "classificationType": {
+          "type": "string"
+        },
+        "noradCatId": {
+          "type": "string"
+        },
+        "elementSetNo": {
+          "type": "string"
+        },
+        "revAtEpoch": {
+          "type": "string"
+        },
+        "bstar": {
+          "type": "string"
+        },
+        "meanMotionDot": {
+          "type": "string"
+        },
+        "meanMotionDdot": {
+          "type": "string"
+        },
+        "semimajorAxis": {
+          "type": "string"
+        },
+        "period": {
+          "type": "string"
+        },
+        "apoapsis": {
+          "type": "string"
+        },
+        "periapsis": {
+          "type": "string"
+        },
+        "objectType": {
+          "type": "string"
+        },
+        "rcsSize": {
+          "type": "string"
+        },
+        "countryCode": {
+          "type": "string"
+        },
+        "launchDate": {
+          "type": "string"
+        },
+        "site": {
+          "type": "string"
+        },
+        "decayDate": {
+          "type": "string"
+        },
+        "file": {
+          "type": "string"
+        },
+        "gpId": {
+          "type": "string"
+        },
+        "tleLine0": {
+          "type": "string"
+        },
+        "tleLine1": {
+          "type": "string"
+        },
+        "tleLine2": {
+          "type": "string"
+        },
+        "groups": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

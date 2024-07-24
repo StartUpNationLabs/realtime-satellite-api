@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+
+resources:
+  - ../../base
+
+images:
+  - name: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
+    newName: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
+    newTag: 0805a3ac788eadb16b1e1937a6f4e3fab1ace997
+  - name: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
+    newName: ghcr.io/startupnationlabs/react-flight-tracker-satellite/nginx-cache
+    newTag: 0805a3ac788eadb16b1e1937a6f4e3fab1ace997
+
+
+patches:
+  - target:
+      kind: Ingress
+      name: api-ingress
+    path: ingress-patch.yaml
