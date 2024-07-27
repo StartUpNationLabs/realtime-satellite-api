@@ -29,11 +29,11 @@ spec:
               protocol: TCP
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
-            limits:
-              cpu: "500m"
               memory: "512Mi"
+              cpu: "2"
+            limits:
+              memory: "2Gi"
+              cpu: "8"
           env:
             - name: CELESTRACK_URL
               value: https://celestrak.org/NORAD/elements/
