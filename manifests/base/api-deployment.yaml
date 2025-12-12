@@ -15,7 +15,7 @@ spec:
         io.kompose.service: api
     spec:
       containers:
-        - image: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
+        - image: ghcr.io/startupnationlabs/realtime-satellite-api/api
           name: api
           ports:
             - containerPort: 5566

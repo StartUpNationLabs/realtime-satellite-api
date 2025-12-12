@@ -25,7 +25,7 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
 # source code into the container.
 RUN --mount=type=cache,target=/go/pkg/mod/ \
     --mount=type=bind,target=. \
-    CGO_ENABLED=0 go build -o /bin/server ./cmd
+    CGO_ENABLED=0 go build -o /bin/server ./cmd/server
 
 FROM alpine:latest AS final
 
@@ -56,6 +56,9 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
+COPY ./data/satellite_snapshot.json /data/satellite_snapshot.json
+
+ENV SATELLITE_SNAPSHOT_FILE=/data/satellite_snapshot.json
 
 # Expose the port that the application listens on.
 EXPOSE 5566
