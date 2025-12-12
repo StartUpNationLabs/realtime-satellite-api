@@ -20,5 +20,5 @@
 # Go workspace file
 go.work
 
-.env
-.env.docker
+../../AppData/Roaming/JetBrains/GoLand2023.3/scratches/.env
+../../AppData/Roaming/JetBrains/GoLand2023.3/scratches/.env.docker

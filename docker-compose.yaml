@@ -1,7 +1,9 @@
 services:
   api:
-    image: ghcr.io/StartUpNationLabs/react-flight-tracker-satellite/api
+    image: ghcr.io/startupnationlabs/react-flight-tracker-satellite/api
     ports:
       - 5566:5566
       - 8080:8080
-
+    build:
+      context: .
+      dockerfile: Dockerfile
