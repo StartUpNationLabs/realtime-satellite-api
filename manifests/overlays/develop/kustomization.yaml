@@ -6,10 +6,10 @@ resources:
 images:
   - name: ghcr.io/startupnationlabs/realtime-satellite-api/api
     newName: ghcr.io/startupnationlabs/realtime-satellite-api/api
-    newTag: c45a63384340a27aba3e34b7fae941b152bbef83
+    newTag: 9f57c070021c5ebf6e543539b0ded3604f5d3dbb
   - name: ghcr.io/startupnationlabs/realtime-satellite-api/nginx-cache
     newName: ghcr.io/startupnationlabs/realtime-satellite-api/nginx-cache
-    newTag: c45a63384340a27aba3e34b7fae941b152bbef83
+    newTag: 9f57c070021c5ebf6e543539b0ded3604f5d3dbb
 
 
 patches:
