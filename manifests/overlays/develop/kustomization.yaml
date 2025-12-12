@@ -6,7 +6,7 @@ resources:
 images:
   - name: ghcr.io/startupnationlabs/realtime-satellite-api/api
     newName: ghcr.io/startupnationlabs/realtime-satellite-api/api
-    newTag: 9f57c070021c5ebf6e543539b0ded3604f5d3dbb
+    newTag: 23e1d88b8a8ba4b1a788f302b25a95c5c3b55f95
 
 
 patches:
