@@ -56,7 +56,9 @@ USER appuser
 
 # Copy the executable from the "build" stage.
 COPY --from=build /bin/server /bin/
-COPY ./data/* /data/*
+COPY ./data/satellite_snapshot.json /data/satellite_snapshot.json
+
+ENV SATELLITE_SNAPSHOT_FILE=/data/satellite_snapshot.json
 
 # Expose the port that the application listens on.
 EXPOSE 5566
