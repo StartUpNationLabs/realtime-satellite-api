@@ -1,16 +1,18 @@
 package service
 
 import (
+	"encoding/json"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/celestrack"
 	"github.com/StartUpNationLabs/react-flight-tracker-satellite/spacetrack"
 	"github.com/joshuaferrara/go-satellite"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/exp/maps"
+	"os"
 	"slices"
 	"sort"
 )
 
-func NewSatelliteService() *SatelliteService {
+func initializeData() map[string]spacetrack.TLE {
 	spacetrackClient, err := spacetrack.New()
 	if err != nil {
 		log.Error(err)
@@ -58,6 +60,44 @@ func NewSatelliteService() *SatelliteService {
 	}
 	log.Info("Added satellites from celestrak: ", addedSatellites)
 
+	return calculatedMap
+}
+func getSnapshotFilePath() string {
+	snapshotFilePath := os.Getenv("SATELLITE_SNAPSHOT_FILE")
+	if snapshotFilePath == "" {
+		snapshotFilePath = "./data/satellite_snapshot.json"
+	}
+	return snapshotFilePath
+}
+
+func SaveDataSnapshot() {
+	data := initializeData()
+	// save to file using json
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = os.WriteFile(getSnapshotFilePath(), jsonData, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func LoadDataSnapshot() map[string]spacetrack.TLE {
+	fileData, err := os.ReadFile(getSnapshotFilePath())
+	if err != nil {
+		log.Fatal(err)
+	}
+	var data map[string]spacetrack.TLE
+	err = json.Unmarshal(fileData, &data)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return data
+}
+
+func NewSatelliteService() *SatelliteService {
+	calculatedMap := LoadDataSnapshot()
 	log.Info("Initializing satellites for spg4")
 	// initialize the satellites
 	for k, v := range calculatedMap {
